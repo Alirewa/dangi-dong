@@ -1,0 +1,61 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let an in-flight deploy finish rather than cancelling it half-published.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run type-check
+      - run: npm run lint
+      - run: npm test
+
+      - name: Build static export
+        # Project Pages are served from /<repo>/, so every asset and the service
+        # worker scope must be prefixed. next.config.ts reads this variable.
+        env:
+          NEXT_PUBLIC_BASE_PATH: /dangi-dong
+        run: npm run build
+
+      - name: Disable Jekyll processing
+        # Without this, GitHub Pages drops the _next/ directory because Jekyll
+        # ignores paths beginning with an underscore.
+        run: touch out/.nojekyll
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

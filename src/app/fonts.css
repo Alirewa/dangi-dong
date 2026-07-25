@@ -1,0 +1,43 @@
+/*
+ * Vazirmatn RD-FD (Rounded Dots, Farsi Digits) served locally.
+ * Local — not the jsDelivr CDN — for two reasons that are both load-bearing:
+ *   1. the PWA must render correctly with no network at all
+ *   2. html-to-image can only embed fonts it can read same-origin
+ *
+ * The files live under src/ rather than public/ so the bundler emits them with
+ * hashed, basePath-aware URLs. An absolute `/fonts/...` here would 404 whenever
+ * the app is served from a subdirectory, which is exactly how GitHub Pages
+ * serves a project site.
+ */
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./fonts/Vazirmatn-RD-FD-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./fonts/Vazirmatn-RD-FD-Medium.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('./fonts/Vazirmatn-RD-FD-SemiBold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./fonts/Vazirmatn-RD-FD-Bold.woff2') format('woff2');
+}
