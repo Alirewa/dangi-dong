@@ -1,7 +1,6 @@
 'use client';
 
 import { useT } from '@/hooks/useT';
-import { formatNumber } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import type { ExpenseShare, Person, SplitKind } from '@/types/dong';
 import { AmountInput } from '@/components/ui/AmountInput';
@@ -34,7 +33,7 @@ export function ShareEditor({
   onWeight: (personId: string, weight: number) => void;
   onExact: (personId: string, amount: number | null) => void;
 }) {
-  const { t, locale } = useT();
+  const { t } = useT();
 
   return (
     <ul className="space-y-1">
@@ -80,7 +79,11 @@ export function ShareEditor({
                 />
               )}
 
-              {share.included && splitKind !== 'exact' && (
+              {/* Shown in every mode, including exact: it is what the person
+                  actually ends up paying, and in exact mode it doubles as the
+                  answer to "what happens if I leave this box empty?" — which
+                  used to live in a placeholder. */}
+              {share.included && (
                 <Money value={owed} className="shrink-0 text-sm font-semibold text-primary" />
               )}
 
@@ -95,7 +98,6 @@ export function ShareEditor({
                   showCurrency={false}
                   // A blank box means "join the equal split of the remainder",
                   // so an empty field must map to null, not to 0.
-                  placeholder={`${t.expense.equal} — ${formatNumber(owed, locale)}`}
                   onChange={(v) => onExact(share.personId, v === 0 ? null : v)}
                 />
               </div>

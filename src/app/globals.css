@@ -150,6 +150,32 @@ body.sheet-open {
   overflow: hidden;
 }
 
+/*
+ * Fields follow the app's reading direction.
+ *
+ * Numeric fields keep dir="ltr" so digits and the caret behave correctly, but
+ * that would otherwise left-align them inside an otherwise right-aligned
+ * Persian form. Driving alignment from the document direction instead of the
+ * element's own keeps every field visually consistent.
+ */
+html[dir='rtl'] input,
+html[dir='rtl'] textarea,
+html[dir='rtl'] select {
+  text-align: right;
+}
+
+html[dir='ltr'] input,
+html[dir='ltr'] textarea,
+html[dir='ltr'] select {
+  text-align: left;
+}
+
+/* Checkboxes and radios are boxes, not text — alignment must not touch them. */
+html input[type='checkbox'],
+html input[type='radio'] {
+  text-align: center;
+}
+
 /* Focus ring — one definition, everywhere. Visible in both themes. */
 :focus-visible {
   outline: 2px solid var(--ring);
