@@ -13,6 +13,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Count, Money } from '@/components/ui/Money';
+import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { useT } from '@/hooks/useT';
 import { formatJalaliMonth } from '@/lib/format';
 import { useDongStore } from '@/store/dongStore';
@@ -44,12 +45,19 @@ function GroupsScreen() {
   const pushToast = useDongStore((s) => s.pushToast);
 
   const [formOpen, setFormOpen] = useState(false);
-  const [showArchived, setShowArchived] = useState(false);
+  const [tab, setTab] = useState<'active' | 'archived'>('active');
   const [pendingDelete, setPendingDelete] = useState<Group | null>(null);
 
+  const archivedCount = useMemo(() => groups.filter((g) => g.archived).length, [groups]);
+
+  // Unarchiving the last archived group hides the tabs, so fall back to Active
+  // rather than leaving the user staring at an empty Archived list.
+  const effectiveTab = archivedCount === 0 ? 'active' : tab;
+
+  // Archived groups used to vanish with no way back; they now live behind a tab.
   const visible = useMemo(
-    () => groups.filter((g) => (showArchived ? true : !g.archived)),
-    [groups, showArchived]
+    () => groups.filter((g) => (effectiveTab === 'archived' ? g.archived : !g.archived)),
+    [groups, effectiveTab]
   );
 
   const statsOf = useMemo(() => {
@@ -74,11 +82,23 @@ function GroupsScreen() {
     router.push('/group/');
   };
 
-  const hasArchived = groups.some((g) => g.archived);
 
   return (
     <div className="space-y-4 p-4">
       <InstallPrompt />
+
+      {/* Only worth showing once something has actually been archived. */}
+      {archivedCount > 0 && (
+        <SegmentedControl
+          value={effectiveTab}
+          options={[
+            { value: 'active' as const, label: t.home.tabActive },
+            { value: 'archived' as const, label: t.home.tabArchived },
+          ]}
+          onChange={setTab}
+          label={t.home.title}
+        />
+      )}
 
       {visible.length === 0 ? (
         <EmptyState
@@ -182,18 +202,14 @@ function GroupsScreen() {
             })}
           </ul>
 
-          <Button
-            fullWidth
-            size="lg"
-            icon={<Plus className="size-5" aria-hidden="true" />}
-            onClick={() => setFormOpen(true)}
-          >
-            {t.home.newGroup}
-          </Button>
-
-          {hasArchived && (
-            <Button variant="ghost" fullWidth onClick={() => setShowArchived((v) => !v)}>
-              {showArchived ? t.home.hideArchived : t.home.showArchived}
+          {effectiveTab === 'active' && (
+            <Button
+              fullWidth
+              size="lg"
+              icon={<Plus className="size-5" aria-hidden="true" />}
+              onClick={() => setFormOpen(true)}
+            >
+              {t.home.newGroup}
             </Button>
           )}
         </>

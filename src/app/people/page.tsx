@@ -21,7 +21,7 @@ import { defaultPayoutInfo, type PayoutInfo, type Person } from '@/types/dong';
 export default function PeoplePage() {
   const { t } = useT();
   return (
-    <AppShell title={t.people.title}>
+    <AppShell title={t.people.title} wide>
       <HydrationGate>
         <PeopleScreen />
       </HydrationGate>
@@ -60,13 +60,14 @@ function PeopleScreen() {
         />
       ) : (
         <>
-          <ul className="space-y-2">
+          {/* One card per row on a phone; a grid once there is room for it. */}
+          <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {globals.map((person) => {
               const card = person.payout?.cardNumber;
               return (
                 <li
                   key={person.id}
-                  className="rounded-lg border border-border bg-surface p-3"
+                  className="flex flex-col rounded-lg border border-border bg-surface p-3"
                 >
                   {/* Identity on one row, actions on their own — three buttons
                       wrapped mid-row on a phone and broke the card. */}
@@ -84,7 +85,9 @@ function PeopleScreen() {
                     </span>
                   </div>
 
-                  <div className="mt-2 flex justify-end gap-1 border-t border-border pt-2">
+                  {/* mt-auto pins the actions to the card bottom so a grid of
+                      cards with different content still lines up. */}
+                  <div className="mt-auto flex justify-end gap-1 border-t border-border pt-2 [&:not(:first-child)]:mt-3">
                     <ActionButton
                       icon={<Pencil className="size-4" aria-hidden="true" />}
                       onClick={() => setEditing(person)}
