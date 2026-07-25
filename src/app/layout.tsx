@@ -5,6 +5,7 @@ import { DocumentAttrs } from '@/components/layout/DocumentAttrs';
 import { ToastHost } from '@/components/ui/ToastHost';
 import { PwaBootstrap } from '@/components/layout/PwaBootstrap';
 import { OnboardingSheet } from '@/components/layout/OnboardingSheet';
+import { StarPrompt } from '@/components/layout/StarPrompt';
 import { STORAGE_KEY } from '@/lib/storageKey';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
@@ -76,6 +77,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <PwaBootstrap />
         {children}
         <OnboardingSheet />
+        <StarPrompt />
         <ToastHost />
       </body>
     </html>

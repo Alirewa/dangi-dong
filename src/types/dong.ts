@@ -202,7 +202,13 @@ export interface Settings {
   selfPersonId: string | null;
   /** false only before the first-run name prompt has been answered */
   onboarded: boolean;
+  /** seconds the app has been open and visible, across all sessions */
+  usageSeconds: number;
+  /** gate for the one-time "star the repo" ask */
+  starPrompt: StarPromptState;
 }
+
+export type StarPromptState = 'unseen' | 'later' | 'done';
 
 export const defaultSettings: Settings = {
   locale: 'fa',
@@ -214,6 +220,8 @@ export const defaultSettings: Settings = {
   storagePersistAsked: false,
   selfPersonId: null,
   onboarded: false,
+  usageSeconds: 0,
+  starPrompt: 'unseen',
 };
 
 export const ROUND_OPTIONS: RoundTo[] = [1, 100, 500, 1000];

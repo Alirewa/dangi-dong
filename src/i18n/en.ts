@@ -46,6 +46,14 @@ export const en: Dict = {
     submit: 'Get started',
   },
 
+  star: {
+    title: 'Enjoying Dangi Dong?',
+    description:
+      'It is free, ad-free, and none of your data ever leaves your device. If it has been useful, a star on GitHub is the best kind of thanks — one click.',
+    confirm: 'Star on GitHub',
+    later: 'Maybe later',
+  },
+
   nav: {
     groups: 'Groups',
     people: 'People',

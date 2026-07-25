@@ -21,6 +21,7 @@ import {
   type RoundTo,
   type Settings,
   type SplitKind,
+  type StarPromptState,
   type ThemeMode,
   type Toast,
   type ToastKind,
@@ -71,6 +72,8 @@ interface DongStore extends PersistedShape {
   setRoundTo: (r: RoundTo) => void;
   setTransferStrategy: (s: TransferStrategy) => void;
   dismissInstallBanner: () => void;
+  addUsageSeconds: (seconds: number) => void;
+  setStarPrompt: (state: StarPromptState) => void;
   markBackedUp: () => void;
   markStoragePersistAsked: () => void;
 
@@ -237,6 +240,13 @@ export const useDongStore = create<DongStore>()(
         set((s) => ({ settings: { ...s.settings, transferStrategy } })),
       dismissInstallBanner: () =>
         set((s) => ({ settings: { ...s.settings, installBannerDismissedAt: nowIso() } })),
+      addUsageSeconds: (seconds) =>
+        set((s) => ({
+          settings: { ...s.settings, usageSeconds: (s.settings.usageSeconds ?? 0) + seconds },
+        })),
+
+      setStarPrompt: (starPrompt) => set((s) => ({ settings: { ...s.settings, starPrompt } })),
+
       markBackedUp: () => set((s) => ({ settings: { ...s.settings, lastBackupAt: nowIso() } })),
       markStoragePersistAsked: () =>
         set((s) => ({ settings: { ...s.settings, storagePersistAsked: true } })),
@@ -692,7 +702,7 @@ export const useDongStore = create<DongStore>()(
     }),
     {
       name: STORAGE_KEY,
-      version: 3,
+      version: 4,
       storage: createJSONStorage(() => localStorage),
       /**
        * v2: `group.emoji` (an emoji character) became `group.icon` (a key), so
@@ -700,6 +710,8 @@ export const useDongStore = create<DongStore>()(
        * v3: introduced `settings.selfPersonId` / `onboarded`. Existing installs
        *     must not be shown the first-run prompt, and the person the old
        *     seed created is adopted as the owner.
+       * v4: added usage tracking and the star-prompt gate; older settings
+       *     objects just need the new keys backfilled.
        */
       migrate: (persisted, from) => {
         const state = persisted as PersistedShape | undefined;
@@ -724,6 +736,10 @@ export const useDongStore = create<DongStore>()(
             selfPersonId: seeded?.id ?? firstGlobal?.id ?? null,
             onboarded: people.length > 0,
           };
+        }
+
+        if (from < 4) {
+          state.settings = { ...defaultSettings, ...state.settings };
         }
 
         return state as never;
