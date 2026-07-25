@@ -182,7 +182,7 @@ function PersonSheet({ person, onClose }: { person: Person | null; onClose: () =
       onClose={onClose}
       title={person ? t.people.editTitle : t.people.newTitle}
       footer={
-        <Button fullWidth onClick={submit}>
+        <Button block onClick={submit}>
           {t.common.save}
         </Button>
       }
@@ -217,7 +217,7 @@ function PersonSheet({ person, onClose }: { person: Person | null; onClose: () =
         ) : (
           <Button
             variant="outline"
-            fullWidth
+            block
             icon={<CreditCard className="size-4" aria-hidden="true" />}
             onClick={() => setShowPayout(true)}
           >

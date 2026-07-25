@@ -11,7 +11,15 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
   size?: Size;
   loading?: boolean;
+  /**
+   * Full width on phones, where a wide tap target helps, and content width from
+   * the `sm` breakpoint up — a button stretched across a desktop column reads
+   * as a banner rather than a control. Pass `block` when the button genuinely
+   * has to fill its container (grid cells, modal footers).
+   */
   fullWidth?: boolean;
+  /** fill the container at every width */
+  block?: boolean;
   icon?: ReactNode;
 }
 
@@ -31,7 +39,18 @@ const SIZES: Record<Size, string> = {
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant = 'primary', size = 'md', loading, fullWidth, icon, className, children, disabled, ...rest },
+  {
+    variant = 'primary',
+    size = 'md',
+    loading,
+    fullWidth,
+    block,
+    icon,
+    className,
+    children,
+    disabled,
+    ...rest
+  },
   ref
 ) {
   return (
@@ -44,7 +63,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         'disabled:cursor-not-allowed disabled:opacity-50',
         VARIANTS[variant],
         SIZES[size],
-        fullWidth && 'w-full',
+        block ? 'w-full' : fullWidth && 'w-full sm:w-auto',
         className
       )}
       {...rest}

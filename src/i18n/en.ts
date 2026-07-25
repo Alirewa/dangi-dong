@@ -47,9 +47,9 @@ export const en: Dict = {
   },
 
   star: {
-    title: 'Enjoying Dangi Dong?',
+    title: 'Has this been useful?',
     description:
-      'It is free, ad-free, and none of your data ever leaves your device. If it has been useful, a star on GitHub is the best kind of thanks — one click.',
+      'Dangi Dong is free, and starring the project on GitHub is the only way to support its developer. Please take 30 seconds to back the project with a star.',
     confirm: 'Star on GitHub',
     later: 'Maybe later',
   },
@@ -206,8 +206,7 @@ export const en: Dict = {
     invalidIban: 'Not a valid IBAN',
     adHocBadge: 'Temporary',
     adHocIn: 'in this group only',
-    promote: 'Save to my people',
-    promoted: 'Saved to my people',
+
     deleteTitle: 'Delete this person?',
     deleteDesc: 'They will be removed from every group and expense. This cannot be undone.',
     needName: 'Enter a name',

@@ -121,7 +121,7 @@ function GroupForm({ onClose, editing }: { onClose: () => void; editing: Group |
       onClose={onClose}
       title={editing ? t.groupForm.editTitle : t.groupForm.newTitle}
       footer={
-        <Button fullWidth onClick={submit}>
+        <Button block onClick={submit}>
           {t.common.save}
         </Button>
       }
@@ -271,7 +271,7 @@ function GroupForm({ onClose, editing }: { onClose: () => void; editing: Group |
           {globals.length === 0 && adHocNames.length === 0 && (
             <Button
               variant="outline"
-              fullWidth
+              block
               icon={<Plus className="size-4" aria-hidden="true" />}
               onClick={() => {
                 const p = addPerson({ name: t.appName === 'دنگ‌بندی' ? 'من' : 'Me' });

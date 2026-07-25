@@ -35,7 +35,7 @@ export function OnboardingSheet() {
       onClose={() => completeOnboarding()}
       title={t.onboarding.title}
       footer={
-        <Button fullWidth size="lg" onClick={() => completeOnboarding(name)}>
+        <Button block size="lg" onClick={() => completeOnboarding(name)}>
           {t.onboarding.submit}
         </Button>
       }

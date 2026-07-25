@@ -345,15 +345,15 @@ function ExpenseForm({ group, editing }: { group: Group; editing: Expense | null
         />
 
         <div className="space-y-2">
-          <Button fullWidth size="lg" onClick={submit} disabled={locked}>
+          <Button block size="lg" onClick={submit} disabled={locked}>
             {t.common.save}
           </Button>
 
           {editing && (
-            <div className="flex gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <Button
                 variant="outline"
-                fullWidth
+                block
                 icon={<Copy className="size-4" aria-hidden="true" />}
                 onClick={() => {
                   duplicateExpense(editing.id);
@@ -365,7 +365,7 @@ function ExpenseForm({ group, editing }: { group: Group; editing: Expense | null
               </Button>
               <Button
                 variant="outline"
-                fullWidth
+                block
                 className="border-negative/40 text-negative"
                 disabled={locked}
                 icon={<Trash2 className="size-4" aria-hidden="true" />}

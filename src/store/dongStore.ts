@@ -81,7 +81,6 @@ interface DongStore extends PersistedShape {
   addPerson: (input: { name: string; scope?: PersonScope; groupId?: string | null }) => Person;
   updatePerson: (id: string, data: Partial<Omit<Person, 'id' | 'createdAt'>>) => void;
   removePerson: (id: string) => void;
-  promotePerson: (id: string) => void;
   updatePayout: (id: string, data: Partial<PayoutInfo>) => void;
 
   // groups
@@ -299,13 +298,6 @@ export const useDongStore = create<DongStore>()(
               payers: payers.length > 0 ? reconcilePayers(payers, e.amount) : [],
             });
           }),
-        })),
-
-      promotePerson: (id) =>
-        set((s) => ({
-          people: s.people.map((p) =>
-            p.id === id ? { ...p, scope: 'global' as PersonScope, groupId: null } : p
-          ),
         })),
 
       updatePayout: (id, data) =>

@@ -55,11 +55,11 @@ export function StarPrompt() {
       title={t.star.title}
       footer={
         <div className="flex gap-2">
-          <Button variant="secondary" fullWidth onClick={() => setStarPrompt('later')}>
+          <Button variant="secondary" block onClick={() => setStarPrompt('later')}>
             {t.star.later}
           </Button>
           <Button
-            fullWidth
+            block
             icon={<Star className="size-4" aria-hidden="true" />}
             onClick={star}
           >

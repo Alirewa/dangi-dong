@@ -178,10 +178,10 @@ function SettingsScreen() {
             : t.settings.neverBackedUp}
         </p>
 
-        <div className="flex gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <Button
             variant="secondary"
-            fullWidth
+            block
             icon={<Download className="size-4" aria-hidden="true" />}
             onClick={onExport}
           >
@@ -189,7 +189,7 @@ function SettingsScreen() {
           </Button>
           <Button
             variant="outline"
-            fullWidth
+            block
             icon={<Upload className="size-4" aria-hidden="true" />}
             onClick={() => fileRef.current?.click()}
           >

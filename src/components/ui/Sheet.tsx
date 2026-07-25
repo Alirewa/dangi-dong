@@ -103,7 +103,7 @@ export function Sheet({
       className="m-0 max-h-[90dvh] w-full max-w-lg self-end justify-self-center overflow-hidden rounded-t-2xl border border-border bg-surface p-0 text-foreground backdrop:bg-black/50 sm:mb-8 sm:self-center sm:rounded-2xl"
     >
       <div className="flex max-h-[90dvh] flex-col">
-        <header className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
+        <header className="flex items-center justify-between gap-2 border-b border-border px-5 py-3.5">
           <h2 className="min-w-0 flex-1 truncate text-base font-semibold">{title}</h2>
           <Button
             variant="ghost"
@@ -115,9 +115,18 @@ export function Sheet({
           </Button>
         </header>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5">{children}</div>
 
-        {footer && <footer className="safe-bottom border-t border-border p-4">{footer}</footer>}
+        {/*
+          The footer sits flush against the bottom edge of the screen on mobile,
+          so `safe-bottom` alone left the buttons touching it. Padding is added
+          on top of the inset rather than replaced by it.
+        */}
+        {footer && (
+          <footer className="border-t border-border px-5 pt-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+            {footer}
+          </footer>
+        )}
       </div>
     </dialog>
   );

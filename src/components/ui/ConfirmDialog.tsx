@@ -34,10 +34,10 @@ export function ConfirmDialog({
       title={title}
       footer={
         <div className="flex gap-2">
-          <Button variant="secondary" fullWidth onClick={onCancel}>
+          <Button variant="secondary" block onClick={onCancel}>
             {t.common.cancel}
           </Button>
-          <Button variant={danger ? 'danger' : 'primary'} fullWidth onClick={onConfirm}>
+          <Button variant={danger ? 'danger' : 'primary'} block onClick={onConfirm}>
             {confirmLabel ?? t.common.confirm}
           </Button>
         </div>

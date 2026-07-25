@@ -20,7 +20,6 @@ import { useActiveGroup, useActivePeriod } from '@/hooks/useActiveGroup';
 import { useSettlement } from '@/hooks/useSettlement';
 import { useT } from '@/hooks/useT';
 import { expensesOf, useDongStore } from '@/store/dongStore';
-import { cn } from '@/lib/utils';
 
 type Tab = 'expenses' | 'members' | 'summary';
 
@@ -94,22 +93,7 @@ function GroupScreen() {
         <SegmentedControl value={tab} options={tabs} onChange={setTab} />
 
         {tab === 'expenses' && (
-          <>
-            <ExpenseList expenses={expenses} people={people} readOnly={readOnly} />
-            {!readOnly && (
-              <Button
-                fullWidth
-                size="lg"
-                icon={<Plus className="size-5" aria-hidden="true" />}
-                onClick={() => {
-                  startEditExpense(null);
-                  router.push('/group/expense/');
-                }}
-              >
-                {t.group.addExpense}
-              </Button>
-            )}
-          </>
+          <ExpenseList expenses={expenses} people={people} readOnly={readOnly} />
         )}
 
         {tab === 'members' && <MembersTab groupId={group.id} />}
@@ -138,17 +122,34 @@ function GroupScreen() {
           </ul>
         )}
 
-        {expenses.length > 0 && (
-          <Button
-            variant="secondary"
-            fullWidth
-            size="lg"
-            icon={<Calculator className="size-5" aria-hidden="true" />}
-            onClick={() => router.push('/settle/')}
-          >
-            {t.group.settle}
-          </Button>
-        )}
+        {/* The two page-level actions sit side by side instead of stacking. */}
+        <div className="grid gap-2 sm:grid-cols-2">
+          {tab === 'expenses' && !readOnly && (
+            <Button
+              block
+              size="lg"
+              icon={<Plus className="size-5" aria-hidden="true" />}
+              onClick={() => {
+                startEditExpense(null);
+                router.push('/group/expense/');
+              }}
+            >
+              {t.group.addExpense}
+            </Button>
+          )}
+
+          {expenses.length > 0 && (
+            <Button
+              variant="secondary"
+              block
+              size="lg"
+              icon={<Calculator className="size-5" aria-hidden="true" />}
+              onClick={() => router.push('/settle/')}
+            >
+              {t.group.settle}
+            </Button>
+          )}
+        </div>
       </div>
 
       <GroupFormSheet open={editOpen} onClose={() => setEditOpen(false)} editing={group} />
@@ -165,8 +166,6 @@ function MembersTab({ groupId }: { groupId: string }) {
   const addMember = useDongStore((s) => s.addMember);
   const addAdHocMember = useDongStore((s) => s.addAdHocMember);
   const removeMember = useDongStore((s) => s.removeMember);
-  const setTreasurer = useDongStore((s) => s.setTreasurer);
-  const promotePerson = useDongStore((s) => s.promotePerson);
   const pushToast = useDongStore((s) => s.pushToast);
 
   const [addOpen, setAddOpen] = useState(false);
@@ -187,7 +186,6 @@ function MembersTab({ groupId }: { groupId: string }) {
     <div className="space-y-3">
       <ul className="space-y-2">
         {members.map((person) => {
-          const isTreasurer = group.treasurerId === person.id;
           const hasCard = Boolean(person.payout?.cardNumber || person.payout?.iban);
           return (
             <li
@@ -214,33 +212,12 @@ function MembersTab({ groupId }: { groupId: string }) {
                 </span>
               </span>
 
-              <button
-                type="button"
-                aria-pressed={isTreasurer}
-                onClick={() => setTreasurer(groupId, isTreasurer ? null : person.id)}
-                className={cn(
-                  'min-h-9 shrink-0 rounded-md px-2 text-xs font-medium transition-colors',
-                  isTreasurer
-                    ? 'bg-primary text-primary-fg'
-                    : 'bg-surface-2 text-muted hover:text-foreground'
-                )}
-              >
-                {t.group.treasurer}
-              </button>
-
+              {/*
+                The manual "main payer" pin lived here and made every member
+                card too dense to scan. The payer is picked automatically from
+                who is owed the most, which is what it resolved to in practice.
+              */}
               <div className="flex w-full flex-wrap justify-end gap-1 sm:w-auto">
-                {person.scope === 'group' && (
-                  <ActionButton
-                    icon={<UserPlus className="size-4" aria-hidden="true" />}
-                    onClick={() => {
-                      promotePerson(person.id);
-                      pushToast('success', t.people.promoted);
-                    }}
-                  >
-                    {t.people.promote}
-                  </ActionButton>
-                )}
-
                 <ActionButton
                   icon={<CreditCard className="size-4" aria-hidden="true" />}
                   onClick={() => router.push('/people/')}
