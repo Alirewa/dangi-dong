@@ -1,33 +1,40 @@
 'use client';
 
+import { GROUP_ICONS } from '@/components/groups/groupIcons';
 import { formatCardNumber, formatIban } from '@/lib/bank';
 import { currencyLabel, formatDate, formatJalaliMonth, formatNumber } from '@/lib/format';
 import { SHARE_WIDTH } from '@/lib/exportImage';
 import type { Dict } from '@/i18n';
-import type { Group, Locale, Period, Person, RoundTo } from '@/types/dong';
+import type { Group, Locale, Period, Person } from '@/types/dong';
 import type { SettlementResult } from '@/types/settlement';
-import { GROUP_ICONS } from '@/components/groups/groupIcons';
 import { SHARE_COLORS as C } from './shareColors';
 
 /**
- * The PNG capture target.
+ * The PNG capture target: a name/amount table plus the payment card.
  *
- * Construction rules that differ deliberately from the rest of the app:
+ * Deliberately stripped of hints, per-person breakdowns and the transfer list.
+ * The recipient of this image needs two facts — what they owe and where to send
+ * it — and every extra line pushed those further down the picture.
+ *
+ * Construction rules that differ from the rest of the app:
  *  - literal hex in inline styles, never Tailwind classes (see shareColors.ts)
  *  - always light, regardless of the app theme
  *  - no box-shadow + filter, no backdrop-filter, no background-image, no
- *    external <img> — each of these has been observed to break html-to-image
- *  - every amount is wrapped in <Num>, which carries the bidi isolation that
- *    stops numbers reordering inside RTL text
+ *    external <img> — each has been observed to break html-to-image
+ *  - every amount carries bidi isolation so digits cannot reorder in RTL
  */
 
-/** Sized via explicit width/height rather than Tailwind, per the rules above. */
-function GroupIcon({ icon, className }: { icon: keyof typeof GROUP_ICONS; className?: string }) {
-  const Icon = GROUP_ICONS[icon] ?? GROUP_ICONS.home;
-  return <Icon width={28} height={28} strokeWidth={2.2} className={className} aria-hidden="true" />;
-}
-
-function Num({ children, bold, color }: { children: string; bold?: boolean; color?: string }) {
+function Num({
+  children,
+  bold,
+  color,
+  size,
+}: {
+  children: string;
+  bold?: boolean;
+  color?: string;
+  size?: number;
+}) {
   return (
     <span
       style={{
@@ -36,11 +43,17 @@ function Num({ children, bold, color }: { children: string; bold?: boolean; colo
         fontVariantNumeric: 'tabular-nums',
         fontWeight: bold ? 700 : 500,
         color: color ?? C.text,
+        fontSize: size,
       }}
     >
       {children}
     </span>
   );
+}
+
+function GroupGlyph({ icon }: { icon: keyof typeof GROUP_ICONS }) {
+  const Icon = GROUP_ICONS[icon] ?? GROUP_ICONS.home;
+  return <Icon width={26} height={26} strokeWidth={2.2} aria-hidden="true" />;
 }
 
 export function ShareCard({
@@ -52,7 +65,6 @@ export function ShareCard({
   locale,
   dir,
   t,
-  roundTo,
 }: {
   id: string;
   group: Group;
@@ -62,15 +74,13 @@ export function ShareCard({
   locale: Locale;
   dir: 'rtl' | 'ltr';
   t: Dict;
-  roundTo: RoundTo;
 }) {
-  const personById = (pid: string) => people.find((p) => p.id === pid) ?? null;
-  const nameOf = (pid: string) => personById(pid)?.name ?? '—';
   const money = (v: number) => formatNumber(v, locale);
-
-  const treasurer = settlement.treasurerId ? personById(settlement.treasurerId) : null;
+  const treasurer = settlement.treasurerId
+    ? (people.find((p) => p.id === settlement.treasurerId) ?? null)
+    : null;
   const payout = treasurer?.payout ?? null;
-  const hasPayout = Boolean(payout?.cardNumber || payout?.iban);
+  const hasCard = Boolean(payout?.cardNumber || payout?.iban);
 
   const subtitle =
     group.mode === 'monthly' && period
@@ -78,6 +88,8 @@ export function ShareCard({
       : group.eventDate
         ? formatDate(group.eventDate, locale)
         : '';
+
+  const alignEnd = dir === 'rtl' ? ('left' as const) : ('right' as const);
 
   return (
     <div
@@ -90,257 +102,154 @@ export function ShareCard({
         fontFamily: "'Vazirmatn', system-ui, sans-serif",
         fontSize: 16,
         lineHeight: 1.6,
-        padding: 0,
         boxSizing: 'border-box',
       }}
     >
       {/* header */}
-      <div style={{ background: C.primary, padding: '24px 28px', color: '#ffffff' }}>
-        <div
-          style={{
-            fontSize: 26,
-            fontWeight: 700,
-            marginBottom: 4,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-          }}
-        >
-          {/* lucide renders inline SVG, which html-to-image serializes cleanly —
-              unlike an <img>, which it would have to fetch and inline itself. */}
-          <GroupIcon icon={group.icon} className="" />
-          <span>{group.name}</span>
+      <div style={{ background: C.primary, padding: '26px 30px', color: '#ffffff' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <GroupGlyph icon={group.icon} />
+          <span style={{ fontSize: 27, fontWeight: 700 }}>{group.name}</span>
         </div>
-        <div style={{ fontSize: 15, opacity: 0.9 }}>
-          {t.appName}
-          {subtitle ? ` • ${subtitle}` : ''}
+        <div style={{ marginTop: 6, fontSize: 15, opacity: 0.92 }}>
+          {subtitle}
+          {subtitle ? ' • ' : ''}
+          {t.settle.total}: <Num bold color="#ffffff">{money(settlement.total)}</Num>{' '}
+          {currencyLabel(locale)}
         </div>
       </div>
 
-      {/* totals strip */}
-      <div
-        style={{
-          display: 'flex',
-          background: C.surface,
-          borderBottom: `1px solid ${C.border}`,
-          padding: '16px 28px',
-        }}
-      >
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 13, color: C.muted }}>{t.settle.total}</div>
-          <div style={{ fontSize: 22 }}>
-            <Num bold color={C.primary}>
-              {money(settlement.total)}
-            </Num>{' '}
-            <span style={{ fontSize: 14, color: C.muted }}>{currencyLabel(locale)}</span>
-          </div>
-        </div>
-        <div style={{ textAlign: dir === 'rtl' ? 'left' : 'right' }}>
-          <div style={{ fontSize: 13, color: C.muted }}>
-            {t.settle.expenses} • {t.settle.people}
-          </div>
-          <div style={{ fontSize: 18 }}>
-            <Num bold>{money(settlement.expenseCount)}</Num>
-            <span style={{ color: C.muted }}> • </span>
-            <Num bold>{money(settlement.balances.length)}</Num>
-          </div>
-        </div>
+      {/* the table: one row per person, name and final share only */}
+      <div style={{ padding: '22px 30px 0' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th
+                style={{
+                  textAlign: 'start',
+                  padding: '0 12px 10px',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: C.muted,
+                  borderBottom: `2px solid ${C.border}`,
+                }}
+              >
+                {t.people.name}
+              </th>
+              <th
+                style={{
+                  textAlign: alignEnd,
+                  padding: '0 12px 10px',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: C.muted,
+                  borderBottom: `2px solid ${C.border}`,
+                }}
+              >
+                {t.settle.owed}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {settlement.balances.map((b, i) => (
+              <tr key={b.personId} style={{ background: i % 2 === 1 ? C.surface : 'transparent' }}>
+                <td
+                  style={{
+                    padding: '13px 12px',
+                    fontSize: 18,
+                    fontWeight: 600,
+                    borderBottom: `1px solid ${C.border}`,
+                  }}
+                >
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: 10,
+                      height: 10,
+                      borderRadius: 5,
+                      background: b.color,
+                      marginInlineEnd: 10,
+                    }}
+                  />
+                  {b.name}
+                </td>
+                <td
+                  style={{
+                    padding: '13px 12px',
+                    textAlign: alignEnd,
+                    borderBottom: `1px solid ${C.border}`,
+                  }}
+                >
+                  <Num bold size={20} color={C.primary}>
+                    {money(b.owed)}
+                  </Num>
+                  <span style={{ marginInlineStart: 5, fontSize: 13, color: C.muted }}>
+                    {currencyLabel(locale)}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      {/* مادرخرج */}
+      {/* the payment card */}
       {treasurer && (
-        <div
-          style={{
-            margin: '20px 28px 0',
-            border: `2px solid ${C.primary}`,
-            borderRadius: 14,
-            background: C.primarySoft,
-            padding: '16px 18px',
-          }}
-        >
-          <div style={{ fontSize: 13, color: C.primaryDark, fontWeight: 600, marginBottom: 6 }}>
-            {t.settle.treasurerTitle}
-          </div>
-          <div style={{ fontSize: 20, fontWeight: 700, color: C.text }}>
-            {payout?.holderName?.trim() || treasurer.name}
-            {payout?.bankName ? (
-              <span style={{ fontSize: 14, fontWeight: 500, color: C.muted }}>
-                {' '}
-                — {payout.bankName}
-              </span>
-            ) : null}
-          </div>
+        <div style={{ padding: '22px 30px 0' }}>
+          <div
+            style={{
+              background: C.primaryDark,
+              borderRadius: 18,
+              padding: '20px 22px',
+              color: '#ffffff',
+            }}
+          >
+            <div style={{ fontSize: 12, letterSpacing: 1, opacity: 0.75 }}>
+              {t.settle.treasurerTitle}
+            </div>
 
-          {hasPayout ? (
-            <div style={{ marginTop: 10 }}>
-              {payout?.cardNumber && (
-                <div style={{ fontSize: 22, letterSpacing: 1 }}>
-                  <Num bold>{formatCardNumber(payout.cardNumber)}</Num>
+            {hasCard && payout?.cardNumber ? (
+              <div style={{ margin: '14px 0 16px', fontSize: 27, letterSpacing: 2 }}>
+                <Num bold color="#ffffff">
+                  {formatCardNumber(payout.cardNumber)}
+                </Num>
+              </div>
+            ) : (
+              <div style={{ margin: '14px 0 16px', fontSize: 15, opacity: 0.8 }}>
+                {t.group.payoutMissing}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 18, fontWeight: 700 }}>
+                  {payout?.holderName?.trim() || treasurer.name}
                 </div>
-              )}
-              {payout?.iban && (
-                <div style={{ fontSize: 14, marginTop: 4, color: C.muted }}>
-                  <Num>{formatIban(payout.iban)}</Num>
+                {payout?.iban && (
+                  <div style={{ marginTop: 4, fontSize: 12, opacity: 0.8 }}>
+                    <Num color="#ffffff">{formatIban(payout.iban)}</Num>
+                  </div>
+                )}
+              </div>
+              {payout?.bankName && (
+                <div style={{ fontSize: 14, opacity: 0.9, whiteSpace: 'nowrap' }}>
+                  {payout.bankName}
                 </div>
               )}
             </div>
-          ) : (
-            <div style={{ marginTop: 6, fontSize: 13, color: C.muted }}>
-              {t.group.payoutMissing}
-            </div>
-          )}
+          </div>
         </div>
       )}
 
-      {/* per-person */}
-      <div style={{ padding: '20px 28px 0' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: C.muted, marginBottom: 10 }}>
-          {t.settle.balances}
-        </div>
-
-        {settlement.balances.map((b) => (
-          <div
-            key={b.personId}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              padding: '10px 0',
-              borderBottom: `1px solid ${C.border}`,
-            }}
-          >
-            <span
-              style={{
-                width: 34,
-                height: 34,
-                borderRadius: 17,
-                background: b.color,
-                color: '#ffffff',
-                fontWeight: 700,
-                fontSize: 15,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              {[...b.name.trim()][0] ?? '?'}
-            </span>
-
-            <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: 'block', fontWeight: 600, fontSize: 16 }}>{b.name}</span>
-              <span style={{ display: 'block', fontSize: 12, color: C.muted }}>
-                <Num color={C.muted}>{money(b.expenseCount)}</Num> {t.settle.itemsIncluded}
-                {b.paid > 0 && (
-                  <>
-                    {' • '}
-                    {t.settle.paid} <Num color={C.muted}>{money(b.paid)}</Num>
-                  </>
-                )}
-              </span>
-            </span>
-
-            <span style={{ textAlign: dir === 'rtl' ? 'left' : 'right', flexShrink: 0 }}>
-              <span style={{ display: 'block', fontSize: 18 }}>
-                <Num bold>{money(b.owed)}</Num>
-              </span>
-              {b.net !== 0 && (
-                <span
-                  style={{
-                    display: 'inline-block',
-                    marginTop: 2,
-                    fontSize: 11,
-                    fontWeight: 600,
-                    borderRadius: 6,
-                    padding: '1px 6px',
-                    background: b.net > 0 ? C.positiveSoft : C.negativeSoft,
-                    color: b.net > 0 ? C.positive : C.negative,
-                  }}
-                >
-                  {b.net > 0 ? t.settle.creditor : t.settle.debtor}{' '}
-                  <Num color={b.net > 0 ? C.positive : C.negative}>{money(Math.abs(b.net))}</Num>
-                </span>
-              )}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* transfers */}
-      <div style={{ padding: '18px 28px 0' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: C.muted, marginBottom: 8 }}>
-          {t.settle.transfersTitle}
-        </div>
-
-        {settlement.transfers.length === 0 ? (
-          <div
-            style={{
-              background: C.positiveSoft,
-              color: C.positive,
-              borderRadius: 10,
-              padding: '10px 14px',
-              fontWeight: 600,
-            }}
-          >
-            {t.settle.noTransfers}
-          </div>
-        ) : (
-          settlement.transfers.map((transfer, i) => (
-            <div
-              key={`${transfer.fromPersonId}-${transfer.toPersonId}-${i}`}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                background: C.surface,
-                borderRadius: 10,
-                padding: '10px 14px',
-                marginBottom: 6,
-              }}
-            >
-              <span style={{ fontWeight: 600 }}>{nameOf(transfer.fromPersonId)}</span>
-              <span style={{ color: C.primary, fontWeight: 700 }}>
-                {dir === 'rtl' ? '◀' : '▶'}
-              </span>
-              <span style={{ fontWeight: 600, flex: 1 }}>{nameOf(transfer.toPersonId)}</span>
-              <span style={{ fontSize: 17 }}>
-                <Num bold color={C.primary}>
-                  {money(transfer.amount)}
-                </Num>
-              </span>
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* rounding disclosure — without this, the residual on one person's row
-          looks like an arithmetic bug */}
-      <div style={{ padding: '14px 28px 0' }}>
-        <div
-          style={{
-            background: C.warningSoft,
-            color: C.warningText,
-            borderRadius: 8,
-            padding: '8px 12px',
-            fontSize: 12,
-          }}
-        >
-          {roundTo > 1
-            ? t.settle.roundNote.replace('{unit}', formatNumber(roundTo, locale))
-            : t.settle.roundNoteExact}
-        </div>
-      </div>
-
       <div
         style={{
-          marginTop: 16,
-          padding: '12px 28px 20px',
+          padding: '18px 30px 22px',
           fontSize: 12,
           color: C.muted,
           textAlign: 'center',
         }}
       >
-        {t.appName} — {t.appTagline}
+        {t.appName} — by @Alirewa
       </div>
     </div>
   );

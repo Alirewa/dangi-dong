@@ -12,6 +12,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { Button } from '@/components/ui/Button';
 import { Count, Money } from '@/components/ui/Money';
+import { PersonName } from '@/components/ui/PersonName';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Sheet } from '@/components/ui/Sheet';
 import { inputClass } from '@/components/ui/TextInput';
@@ -122,7 +123,11 @@ function GroupScreen() {
               >
                 <Avatar name={balance.name} color={balance.color} size="sm" />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium">{balance.name}</span>
+                  <PersonName
+                    personId={balance.personId}
+                    name={balance.name}
+                    className="block text-sm font-medium"
+                  />
                   <span className="block text-xs text-muted">
                     <Count value={balance.expenseCount} /> {t.settle.itemsIncluded}
                   </span>
@@ -193,7 +198,11 @@ function MembersTab({ groupId }: { groupId: string }) {
 
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-2">
-                  <span className="truncate text-sm font-medium">{person.name}</span>
+                  <PersonName
+                    personId={person.id}
+                    name={person.name}
+                    className="text-sm font-medium"
+                  />
                   {person.scope === 'group' && (
                     <span className="shrink-0 rounded bg-surface-2 px-1.5 py-0.5 text-[11px] text-muted">
                       {t.people.adHocBadge}

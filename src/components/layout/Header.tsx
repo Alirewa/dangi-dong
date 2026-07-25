@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, Languages, Moon, Sun, SunMoon } from 'lucide-rea
 import { useT } from '@/hooks/useT';
 import { useDongStore } from '@/store/dongStore';
 import { Button } from '@/components/ui/Button';
+import { IconButton } from '@/components/ui/IconButton';
 import { cn } from '@/lib/utils';
 import { isActive, navItems } from './navItems';
 
@@ -46,18 +47,34 @@ export function Header({
   return (
     <header className="safe-top sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center gap-2 px-2 py-2">
-        {back && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.back()}
-            icon={<BackIcon className="size-4" aria-hidden="true" />}
-          >
-            {t.common.back}
-          </Button>
-        )}
+        {/*
+          Mobile keeps only what belongs to this screen: back on one side, the
+          page's own actions on the other, title centred between them. Language
+          and theme live in Settings, so repeating them in a narrow header was
+          just clutter.
+        */}
+        <div className="flex min-w-11 shrink-0 items-center md:min-w-0">
+          {back && (
+            <IconButton label={t.common.back} onClick={() => router.back()} className="md:hidden">
+              <BackIcon className="size-5" aria-hidden="true" />
+            </IconButton>
+          )}
+          {back && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.back()}
+              icon={<BackIcon className="size-4" aria-hidden="true" />}
+              className="hidden md:inline-flex"
+            >
+              {t.common.back}
+            </Button>
+          )}
+        </div>
 
-        <h1 className="min-w-0 flex-1 truncate px-1 text-base font-semibold">{title}</h1>
+        <h1 className="min-w-0 flex-1 truncate text-center text-base font-semibold md:text-start">
+          {title}
+        </h1>
 
         {/* Desktop navigation. The bottom bar is hidden at this breakpoint. */}
         <nav aria-label={t.nav.groups} className="hidden md:block">
@@ -86,27 +103,31 @@ export function Header({
           </ul>
         </nav>
 
-        {actions}
+        <div className="flex min-w-11 shrink-0 items-center justify-end gap-1 md:min-w-0">
+          {actions}
 
-        <span className="mx-1 hidden h-6 w-px bg-border md:inline-block" aria-hidden="true" />
+          <span className="mx-1 hidden h-6 w-px bg-border md:inline-block" aria-hidden="true" />
 
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setLocale(locale === 'fa' ? 'en' : 'fa')}
-          icon={<Languages className="size-4" aria-hidden="true" />}
-        >
-          {locale === 'fa' ? 'EN' : 'فا'}
-        </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setLocale(locale === 'fa' ? 'en' : 'fa')}
+            icon={<Languages className="size-4" aria-hidden="true" />}
+            className="hidden md:inline-flex"
+          >
+            {locale === 'fa' ? 'EN' : 'فا'}
+          </Button>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setTheme(nextTheme)}
-          icon={<ThemeIcon className="size-4" aria-hidden="true" />}
-        >
-          <span className="hidden sm:inline">{themeLabel}</span>
-        </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setTheme(nextTheme)}
+            icon={<ThemeIcon className="size-4" aria-hidden="true" />}
+            className="hidden md:inline-flex"
+          >
+            {themeLabel}
+          </Button>
+        </div>
       </div>
     </header>
   );

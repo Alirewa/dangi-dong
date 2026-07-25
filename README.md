@@ -1,12 +1,10 @@
-# دنگ‌بندی — dangi-dong
+# Dangi Dong — دنگ‌بندی
 
-تقسیم هزینه‌های مشترک بین دوستان و هم‌خانه‌ای‌ها. کاملاً آفلاین، بدون حساب کاربری، بدون سرور.
+An offline-first PWA for splitting shared expenses between housemates and friends. No account, no server, no tracking — everything lives in your browser.
 
-An offline-first PWA for splitting shared expenses, in Persian and English.
+### 🔗 [Live demo — alirewa.github.io/dangi-dong](https://alirewa.github.io/dangi-dong/)
 
-### 🔗 دمو | Live demo — **[alirewa.github.io/dangi-dong](https://alirewa.github.io/dangi-dong/)**
-
-روی موبایل یا دسکتاپ باز کنید و از منوی مرورگر «نصب» را بزنید تا مثل یک برنامه واقعی نصب شود.
+Open it on a phone or desktop and use your browser's **Install** option to add it as a real app.
 
 [![Deploy](https://github.com/Alirewa/dangi-dong/actions/workflows/deploy.yml/badge.svg)](https://github.com/Alirewa/dangi-dong/actions/workflows/deploy.yml)
 ![Next.js](https://img.shields.io/badge/Next.js-16-black)
@@ -14,19 +12,20 @@ An offline-first PWA for splitting shared expenses, in Persian and English.
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38BDF8)
 ![PWA](https://img.shields.io/badge/PWA-offline--first-0F766E)
-![Tests](https://img.shields.io/badge/tests-66%20passing-15803D)
+![Tests](https://img.shields.io/badge/tests-79%20passing-15803D)
 
-## What it does
+## Features
 
-- **دو حالت** — گروه ماهانه (هم‌خانه‌ای‌ها، هر ماه جداگانه) و گروه دورهمی (رستوران، سفر) با امکان تعریف نفرات موقت.
-- **سه روش تقسیم** — مساوی، با ضریب (مثلاً کسی که دو برابر خورده)، و مبلغ دقیق. در حالت مبلغ دقیق، کادر خالی یعنی «باقی‌مانده را مساوی تقسیم کن» — پس یک هزینه می‌تواند هم‌زمان قلم شخصی و سهم مشترک داشته باشد.
-- **چند پرداخت‌کننده** — هر هزینه می‌تواند توسط چند نفر پرداخت شده باشد؛ سیستم بدهی خالص هر نفر و کمترین جابه‌جایی پول را حساب می‌کند.
-- **مادرخرج** — نمایش کسی که بیشترین مبلغ را پرداخت کرده، همراه با شماره کارت و شبا (با اعتبارسنجی و دکمه کپی).
-- **خروجی** — تصویر PNG برای تلگرام/واتساپ، کپی متن، PDF قابل چاپ، و فایل پشتیبان JSON.
+- **Two group types.** A monthly ledger for housemates, settled month by month, and a one-off event group (restaurant, trip) where guests can be added temporarily without polluting your saved contacts.
+- **Three ways to split.** Equally, by multiplier for whoever consumed more, or by exact amounts. In exact mode a blank box joins the equal split of the remainder — so one expense can hold both a personal item and a shared bill.
+- **Multiple payers.** Any expense can be paid by several people. The app computes each person's net balance and the fewest money movements needed to settle up.
+- **Main payer card.** The person who fronted the money is shown with their card number and IBAN, both checksum-validated, with one-tap copy.
+- **Exports.** A share image for chat apps, a plain-text summary, a printable A4 PDF, and a JSON backup you can restore on another device.
+- **Bilingual and themed.** Persian and English with full RTL/LTR mirroring, Jalali dates, Persian-Indic digits, and light/dark/system themes.
 
 ## Stack
 
-Next.js 16 (App Router, `output: 'export'`) · React 19 · TypeScript strict · Tailwind v4 (CSS-first) · zustand 5 with `persist` · hand-rolled service worker.
+Next.js 16 (App Router, static export) · React 19 · TypeScript strict · Tailwind CSS v4 (CSS-first) · Zustand with `persist` · a hand-rolled service worker.
 
 ## Commands
 
@@ -48,46 +47,49 @@ Also available: `npm run type-check` and `npm run lint`.
 
 ## Deploying
 
-`.github/workflows/deploy.yml` builds and publishes to GitHub Pages on every push to `main`. It runs `type-check`, `lint` and the test suite first, so a broken build never reaches the demo. The project is served from a subdirectory, so the workflow sets `NEXT_PUBLIC_BASE_PATH=/dangi-dong` and drops a `.nojekyll` file (without it, Pages discards the `_next/` directory).
+`.github/workflows/deploy.yml` builds and publishes to GitHub Pages on every push to `main`. It runs type-check, lint and the test suite first, so a broken build never reaches the demo. The site is served from a subdirectory, so the workflow sets `NEXT_PUBLIC_BASE_PATH=/dangi-dong` and writes a `.nojekyll` file — without it, Pages discards the `_next/` directory.
 
-**A caveat specific to GitHub Pages:** it does not let you set response headers, so `sw.js` cannot be served with `Cache-Control: no-cache`. In practice the service worker still updates, but a stale copy can linger longer than it should. If that ever happens, **تنظیمات → پاک‌سازی حافظه و بازخوانی** unregisters every service worker and clears all caches without touching user data.
+**One caveat specific to GitHub Pages:** it does not allow custom response headers, so `sw.js` cannot be served with `Cache-Control: no-cache`. The service worker still updates in practice, but a stale copy can linger longer than it should. **Settings → Clear cache and reload** unregisters every service worker and clears all caches without touching your data.
 
-To host it elsewhere: the build produces a fully static `out/`. Upload it anywhere that serves static files over **HTTPS** (required for service workers and for `navigator.clipboard`).
-
-**One hosting rule matters:** `sw.js` must be served with `Cache-Control: no-cache`. If a stale service worker gets cached, users can be pinned to an old build with no way to update. `static-export.htaccess` sets this for Apache — rename it to `.htaccess` alongside the upload. On other hosts, configure the equivalent header yourself.
-
-If the app is served from a subdirectory, set `NEXT_PUBLIC_BASE_PATH=/subdir` before building.
-
-There is an escape hatch in **تنظیمات → پاک‌سازی حافظه و بازخوانی** that unregisters all service workers and clears caches without touching user data.
+To host it elsewhere, the build produces a fully static `out/`. Serve it over **HTTPS** — required for service workers and for the clipboard API.
 
 ## Data and privacy
 
-Everything lives in `localStorage` in the user's browser. Nothing is transmitted anywhere — there is no backend and no analytics.
+Everything is stored in `localStorage` in your browser. Nothing is transmitted anywhere: there is no backend and no analytics. Your data is never cleared automatically — only the explicit **Erase all data** action in Settings removes it.
 
-The consequence is real and the UI says so: clearing browser data erases everything, and iOS Safari evicts storage for sites unused for 7 days **unless the PWA is installed to the home screen**. That is why the install prompt is framed as data safety, why the app requests `navigator.storage.persist()`, and why it nags for a JSON backup after 30 days. Private/incognito browsing loses everything when the tab closes.
+The consequences are real and the app says so in its own UI: clearing browser data erases everything, and iOS Safari evicts storage for sites unused for 7 days **unless the PWA is installed to the home screen**. That is why the install prompt is framed as data safety, why the app requests persistent storage, and why it asks for a JSON backup after 30 days. Private browsing loses everything when the tab closes.
 
 Note that the JSON backup file contains any saved card numbers.
 
 ## Architecture notes
 
-Read `AGENTS.md` first — it lists the constraints that shaped the code. The load-bearing ones:
+`AGENTS.md` lists the constraints that shaped the code. The load-bearing ones:
 
-- **`output: 'export'` forbids dynamic routes**, so there is no `/group/[id]`. Routes are flat and the active group lives in the store as `activeGroupId`.
-- **`skipHydration: true`** on the persist config, because defaults use `crypto.randomUUID()` and `Date.now()`. `StoreHydrator` rehydrates in an effect and every page reading persisted state sits inside `<HydrationGate>`.
-- **All money is integer Toman.** `lib/money.ts` allocates by largest remainder so shares sum *exactly* to the expense total; that exactness is what guarantees `Σ net === 0` and makes the settlement solvable with no floating-point epsilon anywhere. Outside production, a red strip appears on `/settle/` if any invariant breaks.
+- **Static export forbids dynamic routes**, so there is no `/group/[id]`. Routes are flat and the active group lives in the store as `activeGroupId`.
+- **`skipHydration: true`** on the persist config, because defaults use `crypto.randomUUID()` and `Date.now()`. `StoreHydrator` rehydrates in an effect, and every page reading persisted state sits inside `<HydrationGate>`.
+- **All money is integer Toman.** `lib/money.ts` allocates by largest remainder so shares sum *exactly* to the expense total; that exactness is what guarantees net balances sum to zero and keeps the settlement free of floating-point error. Outside production, a red strip appears on the settlement screen if any invariant breaks.
 - **`components/share/*` does not use Tailwind classes.** html-to-image cannot resolve Tailwind v4's `oklch()` and CSS-variable indirection, so the export cards use literal hex in inline styles and are always light. See `shareColors.ts`.
-- **Every displayed number goes through `<Money>` or `<Count>`.** A bare number inside RTL text gets reordered by the bidi algorithm into a different, plausible-looking value.
+- **Every displayed number goes through `<Money>` or `<Count>`.** A bare number inside RTL text is reordered by the bidi algorithm into a different, plausible-looking value.
+- **Dates are stored as ISO Gregorian** and converted only at the UI boundary. Jalali entry and display are handled in `lib/jalali.ts`.
 
-## Testing status
+Store schema changes ship with a migration: v2 converted group emoji to icon keys, v3 introduced the owner (“you”) identity. Older JSON backups are mapped through the same paths on import.
 
-66 unit tests cover the settlement engine, money allocation, bank validation and backup parsing, including a 500-case randomized property test asserting the core invariants.
+## Testing
 
-Verified in-browser against a hand-calculated 4-person, 5-expense scenario (equal, weighted, excluded-member, multi-payer and mixed exact splits) in both locales, at exact and 1,000-Toman rounding.
+79 unit tests cover the settlement engine, integer money allocation, Jalali conversion, bank validation and backup parsing — including a 500-case randomized property test asserting that shares always sum to the expense total and net balances always sum to zero.
 
-Verified on the live deployment: the service worker registers and activates, precaches all 97 build files including fonts and icons, and controls the page.
+Verified in-browser against a hand-calculated four-person scenario across equal, weighted, excluded-member, multi-payer and mixed-exact splits, in both languages and at both exact and rounded settings. The live deployment is verified to register its service worker and precache all build files.
 
-**Not yet verified on real devices** — these need a physical phone and are the highest-risk remaining items:
+**Not yet verified on physical devices** — the highest-risk remaining items:
 
-- PNG/PDF rasterization. The capture pipeline's inputs are verified (fonts load, no unsupported color functions in the export cards), but html-to-image's actual rasterization cannot run in a non-compositing headless pane. Test on Android Chrome, iOS Safari and Windows Chrome.
-- `navigator.share` on iOS, where transient user activation is easily lost. `useShareBlob` pre-warms the image to avoid this; if it still fails, split it into two taps.
-- Installing to the home screen and cold-launching in airplane mode on all three platforms.
+- PNG and PDF rasterization. The capture pipeline's inputs are verified (fonts load, no unsupported color functions in the export cards), but html-to-image's rasterization cannot run in a non-compositing headless browser. Test on Android Chrome, iOS Safari and Windows Chrome.
+- `navigator.share` on iOS, where transient user activation is easily lost. The share image is pre-built to avoid this; if it still fails, split it into two taps.
+- Installing to the home screen and cold-launching in airplane mode.
+
+## License
+
+MIT
+
+---
+
+by [@Alirewa](https://github.com/Alirewa)

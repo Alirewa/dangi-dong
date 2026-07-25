@@ -31,11 +31,43 @@ export function Sheet({
   const { t, dir } = useT();
   const ref = useRef<HTMLDialogElement>(null);
 
+  /**
+   * `close()` is instant, so closing straight away would skip the exit
+   * animation entirely. Instead we flag the element, let the CSS animation
+   * run, and only then close — covering every path (button, backdrop, Esc, or
+   * the parent flipping `open` after a save).
+   */
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (open && !el.open) el.showModal();
-    if (!open && el.open) el.close();
+
+    if (open) {
+      delete el.dataset.closing;
+      if (!el.open) el.showModal();
+      return;
+    }
+
+    if (!el.open) return;
+
+    el.dataset.closing = 'true';
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      delete el.dataset.closing;
+      if (el.open) el.close();
+    };
+
+    el.addEventListener('animationend', finish, { once: true });
+    // Safety net: if the animation is suppressed (reduced motion, a hidden
+    // tab), animationend may never arrive and the dialog would stay stuck open.
+    const timer = setTimeout(finish, 400);
+
+    return () => {
+      clearTimeout(timer);
+      el.removeEventListener('animationend', finish);
+      finish();
+    };
   }, [open]);
 
   // Lock the page behind the modal. Reference-counted via a data attribute so

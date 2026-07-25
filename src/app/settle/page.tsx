@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/Button';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Count, Money } from '@/components/ui/Money';
+import { PersonName } from '@/components/ui/PersonName';
 import { useActiveGroup, useActivePeriod } from '@/hooks/useActiveGroup';
 import { useSettlement } from '@/hooks/useSettlement';
 import { useShareBlob } from '@/hooks/useShareBlob';
@@ -209,7 +210,8 @@ function SettleScreen() {
                 {settlement.transfers.map((transfer, i) => (
                   <li
                     key={`${transfer.fromPersonId}-${transfer.toPersonId}-${i}`}
-                    className="flex items-center gap-2 rounded-lg border border-border bg-surface p-3"
+                    className="anim-rise flex items-center gap-2 rounded-lg border border-border bg-surface p-3"
+                    style={{ animationDelay: `${Math.min(i, 8) * 45}ms` }}
                   >
                     <span className="truncate text-sm font-medium">
                       {nameOf(transfer.fromPersonId)}
@@ -247,7 +249,11 @@ function SettleScreen() {
                   >
                     <Avatar name={b.name} color={b.color} size="md" />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium">{b.name}</span>
+                      <PersonName
+                        personId={b.personId}
+                        name={b.name}
+                        className="block text-sm font-medium"
+                      />
                       <span className="block text-xs text-muted">
                         <Count value={b.expenseCount} /> {t.settle.itemsIncluded} •{' '}
                         {t.settle.paid}{' '}
@@ -368,7 +374,6 @@ function SettleScreen() {
           locale={locale}
           dir={dir}
           t={t}
-          roundTo={roundTo}
         />
         <StatementCard
           id={STATEMENT_CARD_ID}

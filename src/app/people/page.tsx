@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { PersonName } from '@/components/ui/PersonName';
 import { Sheet } from '@/components/ui/Sheet';
 import { TextInput } from '@/components/ui/TextInput';
 import { useT } from '@/hooks/useT';
@@ -72,7 +73,11 @@ function PeopleScreen() {
 
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-2">
-                      <span className="truncate text-sm font-medium">{person.name}</span>
+                      <PersonName
+                        personId={person.id}
+                        name={person.name}
+                        className="text-sm font-medium"
+                      />
                       {person.archived && (
                         <span className="shrink-0 rounded bg-surface-2 px-1.5 py-0.5 text-[11px] text-muted">
                           {t.home.archived}

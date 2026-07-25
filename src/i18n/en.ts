@@ -30,9 +30,20 @@ export const en: Dict = {
     all: 'All',
     more: 'More',
     person: 'person',
+    you: 'you',
     item: 'item',
     toman: 'Toman',
     required: 'This field is required',
+  },
+
+  onboarding: {
+    title: 'Welcome 👋',
+    description:
+      'What should we call you? Your name appears in groups and statements, and you can change it any time.',
+    nameLabel: 'Your name',
+    namePlaceholder: 'e.g. Ali',
+    nameHint: 'Leave it blank and we will use “Me”.',
+    submit: 'Get started',
   },
 
   nav: {

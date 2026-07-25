@@ -4,6 +4,7 @@ import { StoreHydrator } from '@/components/layout/StoreHydrator';
 import { DocumentAttrs } from '@/components/layout/DocumentAttrs';
 import { ToastHost } from '@/components/ui/ToastHost';
 import { PwaBootstrap } from '@/components/layout/PwaBootstrap';
+import { OnboardingSheet } from '@/components/layout/OnboardingSheet';
 import { STORAGE_KEY } from '@/lib/storageKey';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
@@ -74,6 +75,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <DocumentAttrs />
         <PwaBootstrap />
         {children}
+        <OnboardingSheet />
         <ToastHost />
       </body>
     </html>

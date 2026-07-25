@@ -44,13 +44,17 @@ export function ExpenseList({
 
   return (
     <ul className="space-y-2">
-      {sorted.map((expense) => {
+      {sorted.map((expense, i) => {
         const Icon = CATEGORY_ICONS[expense.category];
         const includedCount = expense.shares.filter((s) => s.included).length;
         const payerNames = expense.payers.map((p) => nameOf(p.personId)).join(listSeparator);
 
         return (
-          <li key={expense.id}>
+          <li
+            key={expense.id}
+            className="anim-rise"
+            style={{ animationDelay: `${Math.min(i, 8) * 35}ms` }}
+          >
             <button
               type="button"
               onClick={() => {

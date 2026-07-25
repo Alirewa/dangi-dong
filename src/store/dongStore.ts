@@ -61,7 +61,9 @@ interface DongStore extends PersistedShape {
 
   // lifecycle
   setHydrated: (v: boolean) => void;
-  seedDefaults: () => void;
+  /** first run: name the owner, or fall back to a default if they dismiss */
+  completeOnboarding: (name?: string) => void;
+  setSelfPerson: (id: string | null) => void;
 
   // settings
   setLocale: (l: Locale) => void;
@@ -191,25 +193,41 @@ export const useDongStore = create<DongStore>()(
       // ── lifecycle ──────────────────────────────────────────────────────────
       setHydrated: (v) => set({ hydrated: v }),
 
-      seedDefaults: () => {
-        if (get().people.length > 0) return;
-        // "من" — so the very first group already has the user in it.
+      completeOnboarding: (name) => {
+        const state = get();
+        if (state.settings.onboarded) return;
+
+        // Dismissing the prompt still needs an owner, so fall back to the
+        // locale default rather than leaving the app without a "you".
+        const finalName = name?.trim() || (state.settings.locale === 'fa' ? 'من' : 'Me');
+        const existing = state.people.find((p) => p.scope === 'global');
+
+        if (existing) {
+          set((s) => ({
+            people: s.people.map((p) => (p.id === existing.id ? { ...p, name: finalName } : p)),
+            settings: { ...s.settings, selfPersonId: existing.id, onboarded: true },
+          }));
+          return;
+        }
+
+        const person: Person = {
+          id: uid(),
+          name: finalName,
+          scope: 'global',
+          groupId: null,
+          color: AVATAR_COLORS[0],
+          payout: { ...defaultPayoutInfo },
+          note: '',
+          archived: false,
+          createdAt: nowIso(),
+        };
         set((s) => ({
-          people: [
-            {
-              id: uid(),
-              name: s.settings.locale === 'fa' ? 'من' : 'Me',
-              scope: 'global',
-              groupId: null,
-              color: AVATAR_COLORS[0],
-              payout: { ...defaultPayoutInfo },
-              note: '',
-              archived: false,
-              createdAt: nowIso(),
-            },
-          ],
+          people: [...s.people, person],
+          settings: { ...s.settings, selfPersonId: person.id, onboarded: true },
         }));
       },
+
+      setSelfPerson: (id) => set((s) => ({ settings: { ...s.settings, selfPersonId: id } })),
 
       // ── settings ───────────────────────────────────────────────────────────
       setLocale: (locale) => set((s) => ({ settings: { ...s.settings, locale } })),
@@ -248,6 +266,10 @@ export const useDongStore = create<DongStore>()(
       removePerson: (id) =>
         set((s) => ({
           people: s.people.filter((p) => p.id !== id),
+          settings:
+            s.settings.selfPersonId === id
+              ? { ...s.settings, selfPersonId: null }
+              : s.settings,
           groups: s.groups.map((g) =>
             g.memberIds.includes(id)
               ? touch({
@@ -670,16 +692,19 @@ export const useDongStore = create<DongStore>()(
     }),
     {
       name: STORAGE_KEY,
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() => localStorage),
       /**
-       * v1 stored an emoji character in `group.emoji`; v2 stores a `group.icon`
-       * key so the UI can render a real icon. Anything unrecognised falls back
-       * to the mode's default rather than leaving a group iconless.
+       * v2: `group.emoji` (an emoji character) became `group.icon` (a key), so
+       *     the UI can render a real icon.
+       * v3: introduced `settings.selfPersonId` / `onboarded`. Existing installs
+       *     must not be shown the first-run prompt, and the person the old
+       *     seed created is adopted as the owner.
        */
       migrate: (persisted, from) => {
         const state = persisted as PersistedShape | undefined;
         if (!state) return state as never;
+
         if (from < 2) {
           state.groups = (state.groups ?? []).map((g) => {
             const legacy = g as Group & { emoji?: string };
@@ -688,6 +713,19 @@ export const useDongStore = create<DongStore>()(
             return next;
           });
         }
+
+        if (from < 3) {
+          const people = state.people ?? [];
+          const seeded = people.find((p) => p.name === 'من' || p.name === 'Me');
+          const firstGlobal = people.find((p) => p.scope === 'global');
+          state.settings = {
+            ...defaultSettings,
+            ...state.settings,
+            selfPersonId: seeded?.id ?? firstGlobal?.id ?? null,
+            onboarded: people.length > 0,
+          };
+        }
+
         return state as never;
       },
       // Non-negotiable: defaults call crypto.randomUUID() and Date.now(), which

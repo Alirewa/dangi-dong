@@ -198,6 +198,10 @@ export interface Settings {
   installBannerDismissedAt: string | null;
   lastBackupAt: string | null;
   storagePersistAsked: boolean;
+  /** which Person is the app's owner — rendered with a "(you)" marker */
+  selfPersonId: string | null;
+  /** false only before the first-run name prompt has been answered */
+  onboarded: boolean;
 }
 
 export const defaultSettings: Settings = {
@@ -208,6 +212,8 @@ export const defaultSettings: Settings = {
   installBannerDismissedAt: null,
   lastBackupAt: null,
   storagePersistAsked: false,
+  selfPersonId: null,
+  onboarded: false,
 };
 
 export const ROUND_OPTIONS: RoundTo[] = [1, 100, 500, 1000];

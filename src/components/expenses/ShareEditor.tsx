@@ -6,6 +6,7 @@ import type { ExpenseShare, Person, SplitKind } from '@/types/dong';
 import { AmountInput } from '@/components/ui/AmountInput';
 import { Avatar } from '@/components/ui/Avatar';
 import { Money } from '@/components/ui/Money';
+import { PersonName } from '@/components/ui/PersonName';
 import { Stepper } from '@/components/ui/Stepper';
 
 /**
@@ -62,14 +63,14 @@ export function ShareEditor({
 
               <Avatar name={person.name} color={person.color} size="sm" />
 
-              <span
+              <PersonName
+                personId={person.id}
+                name={person.name}
                 className={cn(
-                  'min-w-0 flex-1 truncate text-sm font-medium',
+                  'min-w-0 flex-1 text-sm font-medium',
                   !share.included && 'text-muted line-through'
                 )}
-              >
-                {person.name}
-              </span>
+              />
 
               {share.included && splitKind === 'weight' && (
                 <Stepper

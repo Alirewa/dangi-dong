@@ -18,7 +18,6 @@ export function StoreHydrator() {
     const finish = () => {
       if (cancelled) return;
       useDongStore.getState().setHydrated(true);
-      useDongStore.getState().seedDefaults();
     };
 
     // rehydrate() resolves to a Promise for async storage and to undefined for

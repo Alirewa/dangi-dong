@@ -98,10 +98,15 @@ function GroupsScreen() {
       ) : (
         <>
           <ul className="space-y-3">
-            {visible.map((group) => {
+            {visible.map((group, i) => {
               const stats = statsOf.get(group.id);
               return (
-                <li key={group.id}>
+                <li
+                  key={group.id}
+                  className="anim-rise"
+                  // Capped so a long list never leaves the last rows visibly late.
+                  style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}
+                >
                   <div className="rounded-lg border border-border bg-surface transition-colors hover:bg-surface-2">
                     <button
                       type="button"
