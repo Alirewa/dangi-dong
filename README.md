@@ -1,8 +1,20 @@
-# دنگ‌بندی — dong-system
+# دنگ‌بندی — dangi-dong
 
 تقسیم هزینه‌های مشترک بین دوستان و هم‌خانه‌ای‌ها. کاملاً آفلاین، بدون حساب کاربری، بدون سرور.
 
 An offline-first PWA for splitting shared expenses, in Persian and English.
+
+### 🔗 دمو | Live demo — **[alirewa.github.io/dangi-dong](https://alirewa.github.io/dangi-dong/)**
+
+روی موبایل یا دسکتاپ باز کنید و از منوی مرورگر «نصب» را بزنید تا مثل یک برنامه واقعی نصب شود.
+
+[![Deploy](https://github.com/Alirewa/dangi-dong/actions/workflows/deploy.yml/badge.svg)](https://github.com/Alirewa/dangi-dong/actions/workflows/deploy.yml)
+![Next.js](https://img.shields.io/badge/Next.js-16-black)
+![React](https://img.shields.io/badge/React-19-149ECA)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38BDF8)
+![PWA](https://img.shields.io/badge/PWA-offline--first-0F766E)
+![Tests](https://img.shields.io/badge/tests-66%20passing-15803D)
 
 ## What it does
 
@@ -36,7 +48,11 @@ Also available: `npm run type-check` and `npm run lint`.
 
 ## Deploying
 
-The build produces a fully static `out/`. Upload it anywhere that serves static files over **HTTPS** (required for service workers and for `navigator.clipboard`).
+`.github/workflows/deploy.yml` builds and publishes to GitHub Pages on every push to `main`. It runs `type-check`, `lint` and the test suite first, so a broken build never reaches the demo. The project is served from a subdirectory, so the workflow sets `NEXT_PUBLIC_BASE_PATH=/dangi-dong` and drops a `.nojekyll` file (without it, Pages discards the `_next/` directory).
+
+**A caveat specific to GitHub Pages:** it does not let you set response headers, so `sw.js` cannot be served with `Cache-Control: no-cache`. In practice the service worker still updates, but a stale copy can linger longer than it should. If that ever happens, **تنظیمات → پاک‌سازی حافظه و بازخوانی** unregisters every service worker and clears all caches without touching user data.
+
+To host it elsewhere: the build produces a fully static `out/`. Upload it anywhere that serves static files over **HTTPS** (required for service workers and for `navigator.clipboard`).
 
 **One hosting rule matters:** `sw.js` must be served with `Cache-Control: no-cache`. If a stale service worker gets cached, users can be pinned to an old build with no way to update. `static-export.htaccess` sets this for Apache — rename it to `.htaccess` alongside the upload. On other hosts, configure the equivalent header yourself.
 
@@ -68,8 +84,10 @@ Read `AGENTS.md` first — it lists the constraints that shaped the code. The lo
 
 Verified in-browser against a hand-calculated 4-person, 5-expense scenario (equal, weighted, excluded-member, multi-payer and mixed exact splits) in both locales, at exact and 1,000-Toman rounding.
 
+Verified on the live deployment: the service worker registers and activates, precaches all 97 build files including fonts and icons, and controls the page.
+
 **Not yet verified on real devices** — these need a physical phone and are the highest-risk remaining items:
 
 - PNG/PDF rasterization. The capture pipeline's inputs are verified (fonts load, no unsupported color functions in the export cards), but html-to-image's actual rasterization cannot run in a non-compositing headless pane. Test on Android Chrome, iOS Safari and Windows Chrome.
 - `navigator.share` on iOS, where transient user activation is easily lost. `useShareBlob` pre-warms the image to avoid this; if it still fails, split it into two taps.
-- Installation and offline cold-launch on all three platforms.
+- Installing to the home screen and cold-launching in airplane mode on all three platforms.
