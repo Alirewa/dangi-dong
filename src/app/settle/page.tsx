@@ -1,7 +1,15 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Calculator, Copy, FileText, Image as ImageIcon, Printer, Share2 } from 'lucide-react';
+import {
+  Calculator,
+  CheckCircle2,
+  Copy,
+  FileText,
+  Image as ImageIcon,
+  Printer,
+  Share2,
+} from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { HydrationGate } from '@/components/layout/HydrationGate';
 import { ShareCard } from '@/components/share/ShareCard';
@@ -191,7 +199,8 @@ function SettleScreen() {
         <section className="space-y-2">
           <h2 className="text-sm font-semibold">{t.settle.transfersTitle}</h2>
           {settlement.transfers.length === 0 ? (
-            <p className="rounded-lg bg-positive-soft px-4 py-3 text-sm font-semibold text-positive">
+            <p className="flex items-center gap-2 rounded-lg bg-positive-soft px-4 py-3 text-sm font-semibold text-positive">
+              <CheckCircle2 className="size-5 shrink-0" aria-hidden="true" />
               {t.settle.noTransfers}
             </p>
           ) : (

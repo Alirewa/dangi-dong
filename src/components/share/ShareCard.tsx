@@ -6,6 +6,7 @@ import { SHARE_WIDTH } from '@/lib/exportImage';
 import type { Dict } from '@/i18n';
 import type { Group, Locale, Period, Person, RoundTo } from '@/types/dong';
 import type { SettlementResult } from '@/types/settlement';
+import { GROUP_ICONS } from '@/components/groups/groupIcons';
 import { SHARE_COLORS as C } from './shareColors';
 
 /**
@@ -19,6 +20,12 @@ import { SHARE_COLORS as C } from './shareColors';
  *  - every amount is wrapped in <Num>, which carries the bidi isolation that
  *    stops numbers reordering inside RTL text
  */
+
+/** Sized via explicit width/height rather than Tailwind, per the rules above. */
+function GroupIcon({ icon, className }: { icon: keyof typeof GROUP_ICONS; className?: string }) {
+  const Icon = GROUP_ICONS[icon] ?? GROUP_ICONS.home;
+  return <Icon width={28} height={28} strokeWidth={2.2} className={className} aria-hidden="true" />;
+}
 
 function Num({ children, bold, color }: { children: string; bold?: boolean; color?: string }) {
   return (
@@ -89,8 +96,20 @@ export function ShareCard({
     >
       {/* header */}
       <div style={{ background: C.primary, padding: '24px 28px', color: '#ffffff' }}>
-        <div style={{ fontSize: 26, fontWeight: 700, marginBottom: 4 }}>
-          {group.emoji} {group.name}
+        <div
+          style={{
+            fontSize: 26,
+            fontWeight: 700,
+            marginBottom: 4,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+          }}
+        >
+          {/* lucide renders inline SVG, which html-to-image serializes cleanly —
+              unlike an <img>, which it would have to fetch and inline itself. */}
+          <GroupIcon icon={group.icon} className="" />
+          <span>{group.name}</span>
         </div>
         <div style={{ fontSize: 15, opacity: 0.9 }}>
           {t.appName}

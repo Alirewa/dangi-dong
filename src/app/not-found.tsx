@@ -3,14 +3,16 @@
 import Link from 'next/link';
 import { useT } from '@/hooks/useT';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { formatNumber } from '@/lib/format';
 
 export default function NotFound() {
-  const { t } = useT();
+  const { t, locale } = useT();
 
   return (
     <div className="flex min-h-dvh items-center justify-center">
       <EmptyState
-        title="۴۰۴"
+        // Persian digits were hardcoded here, so English mode showed ۴۰۴.
+        title={formatNumber(404, locale)}
         description={t.appTagline}
         action={
           <Link

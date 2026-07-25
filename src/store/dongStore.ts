@@ -6,12 +6,12 @@ import {
   AVATAR_COLORS,
   defaultPayoutInfo,
   defaultSettings,
-  GROUP_EMOJIS,
   type Expense,
   type ExpenseCategory,
   type ExpensePayer,
   type ExpenseShare,
   type Group,
+  type GroupIconKey,
   type GroupMode,
   type Locale,
   type PayoutInfo,
@@ -26,6 +26,7 @@ import {
   type ToastKind,
   type TransferStrategy,
 } from '@/types/dong';
+import { defaultIconFor, toIconKey } from '@/components/groups/groupIcons';
 import { currentJalaliMonth, monthKey } from '@/lib/jalali';
 import { STORAGE_KEY } from '@/lib/storageKey';
 import { nowIso, todayIso, uid } from '@/lib/utils';
@@ -83,7 +84,7 @@ interface DongStore extends PersistedShape {
   addGroup: (input: {
     name: string;
     mode: GroupMode;
-    emoji?: string;
+    icon?: GroupIconKey;
     memberIds?: string[];
     eventDate?: string | null;
     note?: string;
@@ -289,12 +290,12 @@ export const useDongStore = create<DongStore>()(
         })),
 
       // ── groups ─────────────────────────────────────────────────────────────
-      addGroup: ({ name, mode, emoji, memberIds = [], eventDate = null, note = '' }) => {
+      addGroup: ({ name, mode, icon, memberIds = [], eventDate = null, note = '' }) => {
         const group: Group = {
           id: uid(),
           mode,
           name: name.trim(),
-          emoji: emoji ?? (mode === 'monthly' ? GROUP_EMOJIS[0] : GROUP_EMOJIS[1]),
+          icon: icon ?? defaultIconFor(mode),
           memberIds,
           treasurerId: null,
           activePeriodId: null,
@@ -341,7 +342,9 @@ export const useDongStore = create<DongStore>()(
         const group: Group = {
           ...src,
           id: newId,
-          name: `${src.name} (${src.mode === 'event' ? '2' : 'کپی'})`,
+          // Numeric suffix rather than a word: the store has no access to the
+          // dictionary, and a hardcoded Persian "کپی" leaked into English mode.
+          name: `${src.name} (${get().groups.filter((g) => g.name.startsWith(src.name)).length + 1})`,
           memberIds: src.memberIds.map((m) => idMap.get(m) ?? m),
           treasurerId: src.treasurerId ? (idMap.get(src.treasurerId) ?? src.treasurerId) : null,
           activePeriodId: null,
@@ -643,7 +646,7 @@ export const useDongStore = create<DongStore>()(
       replaceAll: (data) =>
         set({
           people: data.people,
-          groups: data.groups,
+          groups: data.groups.map((g) => ({ ...g, icon: toIconKey(g.icon, g.mode) })),
           periods: data.periods,
           expenses: data.expenses,
           settings: { ...defaultSettings, ...data.settings },
@@ -653,7 +656,12 @@ export const useDongStore = create<DongStore>()(
       mergeAll: (data) =>
         set((s) => ({
           people: mergeById(s.people, data.people, (p) => p.createdAt),
-          groups: mergeById(s.groups, data.groups, (g) => g.updatedAt),
+          // Imported groups may come from a v1 backup that still carries emoji.
+          groups: mergeById(
+            s.groups,
+            data.groups.map((g) => ({ ...g, icon: toIconKey(g.icon, g.mode) })),
+            (g) => g.updatedAt
+          ),
           periods: mergeById(s.periods, data.periods, (p) => p.createdAt),
           expenses: mergeById(s.expenses, data.expenses, (e) => e.updatedAt),
         })),
@@ -662,8 +670,26 @@ export const useDongStore = create<DongStore>()(
     }),
     {
       name: STORAGE_KEY,
-      version: 1,
+      version: 2,
       storage: createJSONStorage(() => localStorage),
+      /**
+       * v1 stored an emoji character in `group.emoji`; v2 stores a `group.icon`
+       * key so the UI can render a real icon. Anything unrecognised falls back
+       * to the mode's default rather than leaving a group iconless.
+       */
+      migrate: (persisted, from) => {
+        const state = persisted as PersistedShape | undefined;
+        if (!state) return state as never;
+        if (from < 2) {
+          state.groups = (state.groups ?? []).map((g) => {
+            const legacy = g as Group & { emoji?: string };
+            const next: Group = { ...g, icon: toIconKey(legacy.icon ?? legacy.emoji, g.mode) };
+            delete (next as Group & { emoji?: string }).emoji;
+            return next;
+          });
+        }
+        return state as never;
+      },
       // Non-negotiable: defaults call crypto.randomUUID() and Date.now(), which
       // differ between the server render and the client. StoreHydrator calls
       // persist.rehydrate() in an effect instead.

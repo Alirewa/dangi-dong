@@ -10,6 +10,7 @@ export type ExpenseCategory =
   | 'rent'
   | 'utilities'
   | 'internet'
+  | 'supermarket'
   | 'groceries'
   | 'food'
   | 'transport'
@@ -18,6 +19,7 @@ export type ExpenseCategory =
   | 'other';
 
 export const EXPENSE_CATEGORIES: ExpenseCategory[] = [
+  'supermarket',
   'groceries',
   'food',
   'rent',
@@ -27,6 +29,36 @@ export const EXPENSE_CATEGORIES: ExpenseCategory[] = [
   'household',
   'fun',
   'other',
+];
+
+/**
+ * Group icon keys. Stored as a stable string rather than an emoji character so
+ * the UI can render a real icon; see GROUP_ICONS for the lucide mapping and the
+ * store's v2 migration for how existing emoji values are carried over.
+ */
+export type GroupIconKey =
+  | 'home'
+  | 'utensils'
+  | 'plane'
+  | 'party'
+  | 'car'
+  | 'coffee'
+  | 'beach'
+  | 'movie'
+  | 'cart'
+  | 'building';
+
+export const GROUP_ICON_KEYS: GroupIconKey[] = [
+  'home',
+  'utensils',
+  'plane',
+  'party',
+  'car',
+  'coffee',
+  'beach',
+  'movie',
+  'cart',
+  'building',
 ];
 
 // ── payout (کارت مادرخرج) ────────────────────────────────────────────────────
@@ -99,7 +131,7 @@ export interface Group {
   id: string;
   mode: GroupMode;
   name: string;
-  emoji: string;
+  icon: GroupIconKey;
   /** global + ad-hoc person ids, in display order */
   memberIds: string[];
   /** manual مادرخرج pin; null → auto-pick the largest creditor */
@@ -190,8 +222,6 @@ export const AVATAR_COLORS = [
   '#0369a1',
   '#c2410c',
 ] as const;
-
-export const GROUP_EMOJIS = ['🏠', '🍽️', '✈️', '🎉', '🚗', '☕', '🏖️', '🎬'] as const;
 
 export const MAX_MEMBERS_PER_GROUP = 30;
 export const MAX_GROUPS = 50;

@@ -5,7 +5,13 @@ import { currencyLabel, formatDate, formatJalaliMonth, formatNumber } from '@/li
 import type { Dict } from '@/i18n';
 import type { Expense, Group, Locale, Period, Person } from '@/types/dong';
 import type { SettlementResult } from '@/types/settlement';
+import { GROUP_ICONS } from '@/components/groups/groupIcons';
 import { SHARE_COLORS as C } from './shareColors';
+
+function StatementIcon({ icon }: { icon: keyof typeof GROUP_ICONS }) {
+  const Icon = GROUP_ICONS[icon] ?? GROUP_ICONS.home;
+  return <Icon width={22} height={22} strokeWidth={2.2} color={C.primary} aria-hidden="true" />;
+}
 
 /**
  * The PDF capture target: a full itemized statement at A4 width.
@@ -79,8 +85,9 @@ export function StatementCard({
       }}
     >
       <div style={{ borderBottom: `2px solid ${C.primary}`, paddingBottom: 12, marginBottom: 18 }}>
-        <div style={{ fontSize: 22, fontWeight: 700 }}>
-          {group.emoji} {group.name}
+        <div style={{ fontSize: 22, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <StatementIcon icon={group.icon} />
+          <span>{group.name}</span>
         </div>
         <div style={{ fontSize: 13, color: C.muted, marginTop: 2 }}>
           {t.appName}
@@ -116,7 +123,7 @@ export function StatementCard({
                 {formatDate(expense.date, locale)}
               </td>
               <td style={{ padding: '6px 8px', color: C.muted }}>
-                {expense.payers.map((p) => nameOf(p.personId)).join('، ')}
+                {expense.payers.map((p) => nameOf(p.personId)).join(locale === 'fa' ? '، ' : ', ')}
               </td>
               <td style={{ padding: '6px 8px', textAlign: align }}>{num(money(expense.amount))}</td>
             </tr>

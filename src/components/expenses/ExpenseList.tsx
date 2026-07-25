@@ -34,6 +34,8 @@ export function ExpenseList({
   }
 
   const nameOf = (id: string) => people.find((p) => p.id === id)?.name ?? '—';
+  // Persian uses its own comma; an ASCII one looks foreign mid-sentence.
+  const listSeparator = locale === 'fa' ? '، ' : ', ';
 
   // Newest first; ties broken by creation order so the list never jitters.
   const sorted = [...expenses].sort(
@@ -45,7 +47,7 @@ export function ExpenseList({
       {sorted.map((expense) => {
         const Icon = CATEGORY_ICONS[expense.category];
         const includedCount = expense.shares.filter((s) => s.included).length;
-        const payerNames = expense.payers.map((p) => nameOf(p.personId)).join('، ');
+        const payerNames = expense.payers.map((p) => nameOf(p.personId)).join(listSeparator);
 
         return (
           <li key={expense.id}>

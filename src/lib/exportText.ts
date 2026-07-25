@@ -37,7 +37,9 @@ export function buildSummaryText({
 
   const lines: string[] = [];
 
-  lines.push(`🧾 ${t.appName} — ${group.emoji} ${group.name}`);
+  // Plain text has no icons, so the emoji markers stay here: they are what make
+  // the message scannable once pasted into a Telegram or WhatsApp thread.
+  lines.push(`🧾 ${t.appName} — ${group.name}`);
   lines.push(
     `📅 ${subtitle ? `${subtitle} • ` : ''}${formatNumber(settlement.expenseCount, locale)} ${
       t.settle.expenses

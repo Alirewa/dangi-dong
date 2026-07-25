@@ -24,7 +24,7 @@ function group(memberIds: string[], treasurerId: string | null = null): Group {
     id: 'g1',
     mode: 'event',
     name: 'Test',
-    emoji: '🍽️',
+    icon: 'utensils',
     memberIds,
     treasurerId,
     activePeriodId: null,

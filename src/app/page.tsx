@@ -7,6 +7,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { HydrationGate } from '@/components/layout/HydrationGate';
 import { InstallPrompt } from '@/components/layout/InstallPrompt';
 import { GroupFormSheet } from '@/components/groups/GroupFormSheet';
+import { GroupIcon } from '@/components/groups/groupIcons';
 import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { ActionButton } from '@/components/ui/ActionButton';
@@ -107,8 +108,8 @@ function GroupsScreen() {
                       onClick={() => open(group)}
                       className="flex w-full items-center gap-3 p-4 text-start"
                     >
-                      <span className="text-2xl" aria-hidden="true">
-                        {group.emoji}
+                      <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary">
+                        <GroupIcon icon={group.icon} className="size-6" />
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="flex items-center gap-2">

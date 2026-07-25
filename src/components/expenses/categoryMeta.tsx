@@ -4,6 +4,7 @@ import {
   Lightbulb,
   MoreHorizontal,
   PartyPopper,
+  ShoppingBasket,
   ShoppingCart,
   Sofa,
   UtensilsCrossed,
@@ -16,7 +17,9 @@ export const CATEGORY_ICONS: Record<ExpenseCategory, LucideIcon> = {
   rent: Home,
   utilities: Lightbulb,
   internet: Wifi,
-  groceries: ShoppingCart,
+  // Trolley for a supermarket run, basket for the smaller household top-up.
+  supermarket: ShoppingCart,
+  groceries: ShoppingBasket,
   food: UtensilsCrossed,
   transport: Car,
   household: Sofa,

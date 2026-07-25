@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { Plus, Trash2, UserPlus } from 'lucide-react';
 import { useT } from '@/hooks/useT';
 import { useDongStore } from '@/store/dongStore';
-import { GROUP_EMOJIS, type Group, type GroupMode } from '@/types/dong';
+import { GROUP_ICON_KEYS, type Group, type GroupIconKey, type GroupMode } from '@/types/dong';
+import { GroupIcon, defaultIconFor, toIconKey } from './groupIcons';
 import { todayIso } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { ActionButton } from '@/components/ui/ActionButton';
+import { DateField } from '@/components/ui/DateField';
 import { Sheet } from '@/components/ui/Sheet';
 import { TextInput, inputClass } from '@/components/ui/TextInput';
 
@@ -44,7 +46,9 @@ function GroupForm({ onClose, editing }: { onClose: () => void; editing: Group |
 
   const [name, setName] = useState(() => editing?.name ?? '');
   const [mode, setMode] = useState<GroupMode>(() => editing?.mode ?? 'monthly');
-  const [emoji, setEmoji] = useState<string>(() => editing?.emoji ?? GROUP_EMOJIS[0]);
+  const [icon, setIcon] = useState<GroupIconKey>(
+    () => toIconKey(editing?.icon, editing?.mode ?? 'monthly')
+  );
   const [eventDate, setEventDate] = useState(() => editing?.eventDate ?? todayIso());
   const [memberIds, setMemberIds] = useState<string[]>(
     // New group: pre-tick everyone saved — the common case is "me and my housemates".
@@ -78,7 +82,7 @@ function GroupForm({ onClose, editing }: { onClose: () => void; editing: Group |
     if (editing) {
       updateGroup(editing.id, {
         name: name.trim(),
-        emoji,
+        icon,
         eventDate: editing.mode === 'event' ? eventDate : null,
       });
       // Reconcile membership against what the user ticked.
@@ -95,7 +99,7 @@ function GroupForm({ onClose, editing }: { onClose: () => void; editing: Group |
       const group = addGroup({
         name: name.trim(),
         mode,
-        emoji,
+        icon,
         memberIds,
         eventDate: mode === 'event' ? eventDate : null,
       });
@@ -106,9 +110,9 @@ function GroupForm({ onClose, editing }: { onClose: () => void; editing: Group |
     onClose();
   };
 
-  const modes: { value: GroupMode; label: string; desc: string; emoji: string }[] = [
-    { value: 'monthly', label: t.home.monthly, desc: t.home.monthlyDesc, emoji: '🏠' },
-    { value: 'event', label: t.home.event, desc: t.home.eventDesc, emoji: '🍽️' },
+  const modes: { value: GroupMode; label: string; desc: string; icon: GroupIconKey }[] = [
+    { value: 'monthly', label: t.home.monthly, desc: t.home.monthlyDesc, icon: 'home' },
+    { value: 'event', label: t.home.event, desc: t.home.eventDesc, icon: 'utensils' },
   ];
 
   return (
@@ -135,7 +139,7 @@ function GroupForm({ onClose, editing }: { onClose: () => void; editing: Group |
                 disabled={!!editing}
                 onClick={() => {
                   setMode(m.value);
-                  setEmoji(m.value === 'monthly' ? '🏠' : '🍽️');
+                  setIcon(defaultIconFor(m.value));
                 }}
                 className={cn(
                   'rounded-lg border p-3 text-start transition-colors disabled:opacity-60',
@@ -144,9 +148,7 @@ function GroupForm({ onClose, editing }: { onClose: () => void; editing: Group |
                     : 'border-border bg-surface hover:bg-surface-2'
                 )}
               >
-                <span className="text-xl" aria-hidden="true">
-                  {m.emoji}
-                </span>
+                <GroupIcon icon={m.icon} className="size-6 text-primary" />
                 <span className="mt-1 block text-sm font-semibold">{m.label}</span>
                 <span className="mt-0.5 block text-xs leading-snug text-muted">{m.desc}</span>
               </button>
@@ -167,40 +169,31 @@ function GroupForm({ onClose, editing }: { onClose: () => void; editing: Group |
         />
 
         <div className="space-y-2">
-          <span className="block text-sm font-medium">{t.groupForm.emoji}</span>
+          <span className="block text-sm font-medium">{t.groupForm.icon}</span>
           <div className="flex flex-wrap gap-2">
-            {GROUP_EMOJIS.map((e) => (
+            {GROUP_ICON_KEYS.map((key) => (
               <button
-                key={e}
+                key={key}
                 type="button"
-                aria-label={e}
-                aria-pressed={emoji === e}
-                onClick={() => setEmoji(e)}
+                aria-label={t.groupForm.iconNames[key]}
+                title={t.groupForm.iconNames[key]}
+                aria-pressed={icon === key}
+                onClick={() => setIcon(key)}
                 className={cn(
-                  'size-11 rounded-lg border text-xl transition-colors',
-                  emoji === e ? 'border-primary bg-primary-soft' : 'border-border bg-surface'
+                  'inline-flex size-11 items-center justify-center rounded-lg border transition-colors',
+                  icon === key
+                    ? 'border-primary bg-primary-soft text-primary'
+                    : 'border-border bg-surface text-muted hover:bg-surface-2'
                 )}
               >
-                {e}
+                <GroupIcon icon={key} className="size-5" />
               </button>
             ))}
           </div>
         </div>
 
         {mode === 'event' && (
-          <div className="space-y-1.5">
-            <label htmlFor="event-date" className="block text-sm font-medium">
-              {t.groupForm.eventDate}
-            </label>
-            <input
-              id="event-date"
-              type="date"
-              dir="ltr"
-              value={eventDate}
-              onChange={(e) => setEventDate(e.target.value)}
-              className={inputClass}
-            />
-          </div>
+          <DateField label={t.groupForm.eventDate} value={eventDate} onChange={setEventDate} />
         )}
 
         <div className="space-y-2">

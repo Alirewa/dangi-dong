@@ -67,7 +67,7 @@ function GroupScreen() {
 
   return (
     <AppShell
-      title={`${group.emoji} ${group.name}`}
+      title={group.name}
       back
       actions={
         <Button
