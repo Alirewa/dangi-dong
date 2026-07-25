@@ -56,7 +56,7 @@ export function registerServiceWorker(onWaiting: () => void): void {
     return;
   }
 
-  window.addEventListener('load', () => {
+  const register = () => {
     void navigator.serviceWorker
       .register(SW_URL, { scope: SW_SCOPE })
       .then((registration) => {
@@ -76,7 +76,13 @@ export function registerServiceWorker(onWaiting: () => void): void {
       .catch(() => {
         /* offline-first is a bonus; never break the app over it */
       });
-  });
+  };
+
+  // Waiting on the `load` event alone silently does nothing when hydration runs
+  // after the page has already finished loading — which is the common case for
+  // a small static export, and left the app with no service worker at all.
+  if (document.readyState === 'complete') register();
+  else window.addEventListener('load', register, { once: true });
 }
 
 export async function applyUpdateAndReload(): Promise<void> {
