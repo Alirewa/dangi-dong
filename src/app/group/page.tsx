@@ -180,7 +180,7 @@ function MembersTab({ groupId }: { groupId: string }) {
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
 
   const candidates = people.filter(
-    (p) => p.scope === 'global' && !p.archived && !group.memberIds.includes(p.id)
+    (p) => p.scope === 'global' && !group.memberIds.includes(p.id)
   );
 
   return (

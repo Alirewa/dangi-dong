@@ -185,10 +185,10 @@ export function computeBalances(
  *
  * Exact minimum-transaction partitioning is NP-hard; this is the standard
  * practical answer and is optimal whenever one party is on every edge — which
- * is the dominant real case here (one مادرخرج fronted everything).
+ * is the dominant real case here (one main payer fronted everything).
  *
  * With `preferPersonId` set, that creditor is served first so most transfers
- * point at the مادرخرج. That is what people socially expect, occasionally at
+ * point at the main payer. That is what people socially expect, occasionally at
  * the cost of one extra transfer versus pure greedy.
  */
 export function minimizeTransfers(

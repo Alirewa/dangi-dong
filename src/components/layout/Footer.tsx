@@ -2,14 +2,29 @@ export const AUTHOR_HANDLE = '@Alirewa';
 export const AUTHOR_URL = 'https://github.com/Alirewa';
 export const REPO_URL = 'https://github.com/Alirewa/dangi-dong';
 
-export function Footer() {
+/**
+ * Pinned to the bottom of the viewport, directly above the mobile nav.
+ *
+ * Laying it out in normal flow meant its position depended on how much content
+ * a page had, so the credit line jumped around between screens. Fixing it keeps
+ * it in exactly one place everywhere; AppShell reserves matching bottom padding
+ * so nothing scrolls underneath it.
+ */
+export function Footer({ withNav = true }: { withNav?: boolean }) {
   return (
-    <footer className="px-4 pb-5 pt-8 text-center">
+    <footer
+      className={
+        'pointer-events-none fixed inset-x-0 z-20 flex justify-center pb-2 pt-1 ' +
+        (withNav
+          ? 'bottom-[calc(3.5rem+env(safe-area-inset-bottom))] md:bottom-[env(safe-area-inset-bottom)]'
+          : 'bottom-[env(safe-area-inset-bottom)]')
+      }
+    >
       <a
         href={AUTHOR_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-xs text-muted transition-colors hover:text-primary"
+        className="pointer-events-auto rounded-full bg-background/80 px-3 py-1 text-xs text-muted backdrop-blur transition-colors hover:text-primary"
       >
         by {AUTHOR_HANDLE}
       </a>

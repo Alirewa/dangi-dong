@@ -15,7 +15,7 @@ import type { PayoutInfo } from '@/types/dong';
 import { TextInput } from '@/components/ui/TextInput';
 
 /**
- * Card / IBAN entry for the مادرخرج box.
+ * Card / IBAN entry for the main payer box.
  *
  * Validation policy: a Luhn failure is a hard error (it is definitely a typo),
  * but an unrecognised BIN is only a soft warning — the BIN table is a

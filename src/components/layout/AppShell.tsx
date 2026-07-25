@@ -17,23 +17,24 @@ export function AppShell({
   hideNav?: boolean;
 }) {
   return (
-    /*
-     * Column flex with a min-height of the viewport, so the footer settles at
-     * the bottom on short pages and simply follows the content on long ones.
-     * Without `flex-1` on <main> the footer floats mid-screen and its position
-     * shifts from page to page.
-     */
-    <div className="flex min-h-dvh flex-col">
+    <div className="min-h-dvh">
       <Header title={title} back={back} actions={actions} />
 
-      <main className="mx-auto w-full max-w-2xl flex-1">{children}</main>
+      {/*
+        Bottom padding reserves room for the fixed footer, plus the fixed mobile
+        nav underneath it, so the last row of content is never covered.
+      */}
+      <main
+        className={
+          hideNav
+            ? 'mx-auto w-full max-w-2xl pb-[calc(2.5rem+env(safe-area-inset-bottom))]'
+            : 'mx-auto w-full max-w-2xl pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-[calc(3rem+env(safe-area-inset-bottom))]'
+        }
+      >
+        {children}
+      </main>
 
-      {/* Bottom padding clears the fixed mobile nav plus the iOS home
-          indicator, so the footer sits just above it rather than under it. */}
-      <div className={hideNav ? '' : 'pb-[calc(3.5rem+env(safe-area-inset-bottom))] md:pb-0'}>
-        <Footer />
-      </div>
-
+      <Footer withNav={!hideNav} />
       {!hideNav && <BottomNav />}
     </div>
   );

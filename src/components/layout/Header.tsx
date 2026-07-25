@@ -46,7 +46,12 @@ export function Header({
 
   return (
     <header className="safe-top sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center gap-2 px-2 py-2">
+      {/*
+        A minimum height rather than padding alone: pages with action buttons
+        were noticeably taller than pages without, so the bar appeared to
+        change size as you navigated. At py-2 it was also too cramped to read.
+      */}
+      <div className="mx-auto flex min-h-16 max-w-5xl items-center gap-2 px-2 py-2 md:min-h-14">
         {/*
           Mobile keeps only what belongs to this screen: back on one side, the
           page's own actions on the other, title centred between them. Language

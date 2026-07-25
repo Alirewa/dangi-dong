@@ -61,7 +61,7 @@ export const GROUP_ICON_KEYS: GroupIconKey[] = [
   'building',
 ];
 
-// ── payout (کارت مادرخرج) ────────────────────────────────────────────────────
+// ── payout (the main payer's card) ───────────────────────────────────────────
 
 export interface PayoutInfo {
   /** '' → fall back to person.name */
@@ -98,8 +98,6 @@ export interface Person {
   color: string;
   payout: PayoutInfo | null;
   note: string;
-  /** hides from pickers WITHOUT breaking historical expenses */
-  archived: boolean;
   createdAt: string;
 }
 
@@ -134,7 +132,7 @@ export interface Group {
   icon: GroupIconKey;
   /** global + ad-hoc person ids, in display order */
   memberIds: string[];
-  /** manual مادرخرج pin; null → auto-pick the largest creditor */
+  /** manual main payer pin; null → auto-pick the largest creditor */
   treasurerId: string | null;
   /** monthly mode only */
   activePeriodId: string | null;

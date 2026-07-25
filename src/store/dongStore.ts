@@ -81,7 +81,6 @@ interface DongStore extends PersistedShape {
   addPerson: (input: { name: string; scope?: PersonScope; groupId?: string | null }) => Person;
   updatePerson: (id: string, data: Partial<Omit<Person, 'id' | 'createdAt'>>) => void;
   removePerson: (id: string) => void;
-  archivePerson: (id: string, v: boolean) => void;
   promotePerson: (id: string) => void;
   updatePayout: (id: string, data: Partial<PayoutInfo>) => void;
 
@@ -221,7 +220,6 @@ export const useDongStore = create<DongStore>()(
           color: AVATAR_COLORS[0],
           payout: { ...defaultPayoutInfo },
           note: '',
-          archived: false,
           createdAt: nowIso(),
         };
         set((s) => ({
@@ -261,7 +259,6 @@ export const useDongStore = create<DongStore>()(
           color: pickColor(get().people),
           payout: { ...defaultPayoutInfo },
           note: '',
-          archived: false,
           createdAt: nowIso(),
         };
         set((s) => ({ people: [...s.people, person] }));
@@ -303,9 +300,6 @@ export const useDongStore = create<DongStore>()(
             });
           }),
         })),
-
-      archivePerson: (id, v) =>
-        set((s) => ({ people: s.people.map((p) => (p.id === id ? { ...p, archived: v } : p)) })),
 
       promotePerson: (id) =>
         set((s) => ({
@@ -381,7 +375,6 @@ export const useDongStore = create<DongStore>()(
           treasurerId: src.treasurerId ? (idMap.get(src.treasurerId) ?? src.treasurerId) : null,
           activePeriodId: null,
           eventDate: src.mode === 'event' ? todayIso() : null,
-          archived: false,
           createdAt: nowIso(),
           updatedAt: nowIso(),
         };

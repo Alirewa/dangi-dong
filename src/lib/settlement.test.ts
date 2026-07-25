@@ -14,7 +14,6 @@ function person(id: string, name = id): Person {
     color: '#0f766e',
     payout: null,
     note: '',
-    archived: false,
     createdAt: '2026-01-01T00:00:00.000Z',
   };
 }

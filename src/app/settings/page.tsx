@@ -8,6 +8,7 @@ import { InstallPrompt } from '@/components/layout/InstallPrompt';
 import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
+import { Select } from '@/components/ui/Select';
 import { Sheet } from '@/components/ui/Sheet';
 import { useT } from '@/hooks/useT';
 import { fmt } from '@/i18n';
@@ -135,13 +136,14 @@ function SettingsScreen() {
       </Section>
 
       <Section title={t.settings.rounding}>
-        <SegmentedControl
+        {/* A select rather than a segmented control: four options with long
+            Persian labels wrapped badly across a narrow row. */}
+        <Select
           value={String(settings.roundTo)}
           options={roundOptions}
           onChange={(v) => store.setRoundTo(Number(v) as RoundTo)}
-          label={t.settings.rounding}
+          hint={t.settings.roundingHint}
         />
-        <p className="text-xs leading-relaxed text-muted">{t.settings.roundingHint}</p>
       </Section>
 
       <Section title={t.settings.strategy}>

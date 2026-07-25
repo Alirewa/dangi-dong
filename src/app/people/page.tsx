@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Archive, ArchiveRestore, CreditCard, Pencil, Trash2, UserPlus, Users } from 'lucide-react';
+import { CreditCard, Pencil, Trash2, UserPlus, Users } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { HydrationGate } from '@/components/layout/HydrationGate';
 import { PayoutForm } from '@/components/people/PayoutForm';
@@ -33,7 +33,6 @@ function PeopleScreen() {
   const { t } = useT();
   const people = useDongStore((s) => s.people);
   const removePerson = useDongStore((s) => s.removePerson);
-  const archivePerson = useDongStore((s) => s.archivePerson);
   const pushToast = useDongStore((s) => s.pushToast);
 
   const [editing, setEditing] = useState<Person | null>(null);
@@ -67,46 +66,30 @@ function PeopleScreen() {
               return (
                 <li
                   key={person.id}
-                  className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-surface p-3"
+                  className="rounded-lg border border-border bg-surface p-3"
                 >
-                  <Avatar name={person.name} color={person.color} size="md" />
-
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-2">
+                  {/* Identity on one row, actions on their own — three buttons
+                      wrapped mid-row on a phone and broke the card. */}
+                  <div className="flex items-center gap-3">
+                    <Avatar name={person.name} color={person.color} size="md" />
+                    <span className="min-w-0 flex-1">
                       <PersonName
                         personId={person.id}
                         name={person.name}
-                        className="text-sm font-medium"
+                        className="block text-sm font-medium"
                       />
-                      {person.archived && (
-                        <span className="shrink-0 rounded bg-surface-2 px-1.5 py-0.5 text-[11px] text-muted">
-                          {t.home.archived}
-                        </span>
-                      )}
+                      <span className="num mt-0.5 block truncate text-xs text-muted">
+                        {card ? formatCardNumber(card) : t.group.payoutMissing}
+                      </span>
                     </span>
-                    <span className="num mt-0.5 block truncate text-xs text-muted">
-                      {card ? formatCardNumber(card) : t.group.payoutMissing}
-                    </span>
-                  </span>
+                  </div>
 
-                  <div className="flex shrink-0 flex-wrap justify-end gap-1">
+                  <div className="mt-2 flex justify-end gap-1 border-t border-border pt-2">
                     <ActionButton
                       icon={<Pencil className="size-4" aria-hidden="true" />}
                       onClick={() => setEditing(person)}
                     >
                       {t.common.edit}
-                    </ActionButton>
-                    <ActionButton
-                      icon={
-                        person.archived ? (
-                          <ArchiveRestore className="size-4" aria-hidden="true" />
-                        ) : (
-                          <Archive className="size-4" aria-hidden="true" />
-                        )
-                      }
-                      onClick={() => archivePerson(person.id, !person.archived)}
-                    >
-                      {person.archived ? t.people.unarchive : t.people.archive}
                     </ActionButton>
                     <ActionButton
                       icon={<Trash2 className="size-4" aria-hidden="true" />}

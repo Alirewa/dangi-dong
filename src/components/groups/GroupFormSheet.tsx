@@ -42,7 +42,7 @@ function GroupForm({ onClose, editing }: { onClose: () => void; editing: Group |
   const removeMember = useDongStore((s) => s.removeMember);
   const pushToast = useDongStore((s) => s.pushToast);
 
-  const globals = people.filter((p) => p.scope === 'global' && !p.archived);
+  const globals = people.filter((p) => p.scope === 'global');
 
   const [name, setName] = useState(() => editing?.name ?? '');
   const [mode, setMode] = useState<GroupMode>(() => editing?.mode ?? 'monthly');
