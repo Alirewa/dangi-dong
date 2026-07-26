@@ -55,8 +55,6 @@ export function PaymentsTab({ group, readOnly }: { group: Group; readOnly: boole
 
   return (
     <div className="space-y-3">
-      <p className="text-xs leading-relaxed text-muted">{t.payment.hint}</p>
-
       {payments.length === 0 ? (
         <EmptyState
           icon={<HandCoins className="size-12" />}
@@ -123,14 +121,15 @@ export function PaymentsTab({ group, readOnly }: { group: Group; readOnly: boole
       )}
 
       {!readOnly && (
-        <Button
-          fullWidth
-          size="lg"
-          icon={<Plus className="size-5" aria-hidden="true" />}
-          onClick={() => setFormOpen(true)}
-        >
-          {t.payment.add}
-        </Button>
+        <div className="flex justify-center">
+          <Button
+            size="lg"
+            icon={<Plus className="size-5" aria-hidden="true" />}
+            onClick={() => setFormOpen(true)}
+          >
+            {t.payment.add}
+          </Button>
+        </div>
       )}
 
       {formOpen && <PaymentForm group={group} onClose={() => setFormOpen(false)} />}

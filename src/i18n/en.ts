@@ -126,6 +126,7 @@ export const en: Dict = {
     noExpensesTitle: 'No expenses yet',
     noExpensesDesc: 'Add the first shared cost and everyone’s share gets calculated.',
     settle: 'Calculate shares',
+    settleOpen: 'View the full statement',
     total: 'Total',
     period: 'Month',
     closePeriod: 'Close month',
@@ -143,7 +144,6 @@ export const en: Dict = {
 
   payment: {
     title: 'Repayments',
-    hint: 'Record money someone has paid back, so it comes off their final balance.',
     add: 'Record a repayment',
     newTitle: 'New repayment',
     from: 'From',
@@ -227,6 +227,8 @@ export const en: Dict = {
     namePlaceholder: 'e.g. Reza',
     note: 'Note',
     payoutTitle: 'Card details',
+    payoutScopeGlobal: 'Saved for this person across every group.',
+    payoutScopeGroup: 'This person is temporary, so their card stays in this group only.',
     payoutHint:
       'Shown when this person is the main payer and everyone else transfers money to them.',
     holderName: 'Account holder',

@@ -20,9 +20,11 @@ import { inputClass } from '@/components/ui/TextInput';
 import { useActiveGroup, useActivePeriod } from '@/hooks/useActiveGroup';
 import { useSettlement } from '@/hooks/useSettlement';
 import { useT } from '@/hooks/useT';
+import { PayoutForm } from '@/components/people/PayoutForm';
 import { expensesOf, useDongStore } from '@/store/dongStore';
+import { defaultPayoutInfo, type PayoutInfo, type Person } from '@/types/dong';
 
-type Tab = 'expenses' | 'payments' | 'members' | 'summary';
+type Tab = 'expenses' | 'payments' | 'members' | 'settle';
 
 export default function GroupPage() {
   return (
@@ -64,7 +66,7 @@ function GroupScreen() {
     { value: 'expenses', label: t.group.tabExpenses },
     { value: 'payments', label: t.group.tabPayments },
     { value: 'members', label: t.group.tabMembers },
-    { value: 'summary', label: t.group.tabSummary },
+    { value: 'settle', label: t.group.settle },
   ];
 
   return (
@@ -95,71 +97,80 @@ function GroupScreen() {
 
         <SegmentedControl value={tab} options={tabs} onChange={setTab} />
 
+        {/*
+          Each tab owns exactly one primary action, centred rather than
+          stretched. The settlement used to be a second button on every tab,
+          which made it unclear which action belonged to what you were looking
+          at; it is now the last tab instead.
+        */}
         {tab === 'expenses' && (
-          <ExpenseList expenses={expenses} people={people} readOnly={readOnly} />
+          <>
+            <ExpenseList expenses={expenses} people={people} readOnly={readOnly} />
+            {!readOnly && (
+              <div className="flex justify-center">
+                <Button
+                  size="lg"
+                  icon={<Plus className="size-5" aria-hidden="true" />}
+                  onClick={() => {
+                    startEditExpense(null);
+                    router.push('/group/expense/');
+                  }}
+                >
+                  {t.group.addExpense}
+                </Button>
+              </div>
+            )}
+          </>
         )}
 
         {tab === 'payments' && <PaymentsTab group={group} readOnly={readOnly} />}
 
         {tab === 'members' && <MembersTab groupId={group.id} />}
 
-        {tab === 'summary' && settlement && (
-          <ul className="space-y-2">
-            {settlement.balances.map((balance) => (
-              <li
-                key={balance.personId}
-                className="flex items-center gap-3 rounded-lg border border-border bg-surface p-3"
-              >
-                <PersonAvatar
-                  personId={balance.personId}
-                  name={balance.name}
-                  color={balance.color}
-                  size="sm"
-                />
-                <span className="min-w-0 flex-1">
-                  <PersonName
+        {tab === 'settle' && settlement && (
+          <div className="space-y-3">
+            <ul className="space-y-2">
+              {settlement.balances.map((balance) => (
+                <li
+                  key={balance.personId}
+                  className="flex items-center gap-3 rounded-lg border border-border bg-surface p-3"
+                >
+                  <PersonAvatar
                     personId={balance.personId}
                     name={balance.name}
-                    className="block text-sm font-medium"
+                    color={balance.color}
+                    size="sm"
                   />
-                  <span className="block text-xs text-muted">
-                    <Count value={balance.expenseCount} /> {t.settle.itemsIncluded}
+                  <span className="min-w-0 flex-1">
+                    <PersonName
+                      personId={balance.personId}
+                      name={balance.name}
+                      className="block text-sm font-medium"
+                    />
+                    <span className="block text-xs text-muted">
+                      <Count value={balance.expenseCount} /> {t.settle.itemsIncluded}
+                    </span>
                   </span>
-                </span>
-                <Money value={balance.owed} className="text-sm font-semibold" />
-              </li>
-            ))}
-          </ul>
+                  <Money value={balance.owed} className="text-sm font-semibold" />
+                </li>
+              ))}
+            </ul>
+
+            {expenses.length === 0 ? (
+              <p className="py-4 text-center text-sm text-muted">{t.settle.nothingToSettle}</p>
+            ) : (
+              <div className="flex justify-center">
+                <Button
+                  size="lg"
+                  icon={<Calculator className="size-5" aria-hidden="true" />}
+                  onClick={() => router.push('/settle/')}
+                >
+                  {t.group.settleOpen}
+                </Button>
+              </div>
+            )}
+          </div>
         )}
-
-        {/* The two page-level actions sit side by side instead of stacking. */}
-        <div className="grid gap-2 sm:grid-cols-2">
-          {tab === 'expenses' && !readOnly && (
-            <Button
-              block
-              size="lg"
-              icon={<Plus className="size-5" aria-hidden="true" />}
-              onClick={() => {
-                startEditExpense(null);
-                router.push('/group/expense/');
-              }}
-            >
-              {t.group.addExpense}
-            </Button>
-          )}
-
-          {expenses.length > 0 && (
-            <Button
-              variant="secondary"
-              block
-              size="lg"
-              icon={<Calculator className="size-5" aria-hidden="true" />}
-              onClick={() => router.push('/settle/')}
-            >
-              {t.group.settle}
-            </Button>
-          )}
-        </div>
       </div>
 
       <GroupFormSheet open={editOpen} onClose={() => setEditOpen(false)} editing={group} />
@@ -169,7 +180,6 @@ function GroupScreen() {
 
 function MembersTab({ groupId }: { groupId: string }) {
   const { t } = useT();
-  const router = useRouter();
 
   const groups = useDongStore((s) => s.groups);
   const people = useDongStore((s) => s.people);
@@ -180,6 +190,7 @@ function MembersTab({ groupId }: { groupId: string }) {
 
   const [addOpen, setAddOpen] = useState(false);
   const [adHocName, setAdHocName] = useState('');
+  const [payoutFor, setPayoutFor] = useState<Person | null>(null);
 
   const group = groups.find((g) => g.id === groupId);
   if (!group) return null;
@@ -233,9 +244,9 @@ function MembersTab({ groupId }: { groupId: string }) {
               <div className="flex w-full flex-wrap justify-end gap-1 sm:w-auto">
                 <ActionButton
                   icon={<CreditCard className="size-4" aria-hidden="true" />}
-                  onClick={() => router.push('/people/')}
+                  onClick={() => setPayoutFor(person)}
                 >
-                  {t.group.editPayout}
+                  {hasCard ? t.common.edit : t.group.editPayout}
                 </ActionButton>
 
                 <ActionButton
@@ -253,14 +264,19 @@ function MembersTab({ groupId }: { groupId: string }) {
         })}
       </ul>
 
-      <Button
-        variant="outline"
-        fullWidth
-        icon={<UserPlus className="size-4" aria-hidden="true" />}
-        onClick={() => setAddOpen(true)}
-      >
-        {t.group.addMember}
-      </Button>
+      <div className="flex justify-center">
+        <Button
+          variant="outline"
+          icon={<UserPlus className="size-4" aria-hidden="true" />}
+          onClick={() => setAddOpen(true)}
+        >
+          {t.group.addMember}
+        </Button>
+      </div>
+
+      {payoutFor && (
+        <PayoutSheet key={payoutFor.id} person={payoutFor} onClose={() => setPayoutFor(null)} />
+      )}
 
       <Sheet open={addOpen} onClose={() => setAddOpen(false)} title={t.group.addMember}>
         <div className="space-y-4">
@@ -322,5 +338,52 @@ function MembersTab({ groupId }: { groupId: string }) {
         </div>
       </Sheet>
     </div>
+  );
+}
+
+/**
+ * Card details, edited without leaving the group.
+ *
+ * This used to navigate to the People screen, which lost the user's place for
+ * what is a two-field edit. Where the card ends up follows from the person's
+ * scope and needs no switch: a saved person carries it into every group, while
+ * a temporary member's card lives and dies with this group, because the payout
+ * hangs off the Person record either way.
+ */
+function PayoutSheet({ person, onClose }: { person: Person; onClose: () => void }) {
+  const { t } = useT();
+  const updatePayout = useDongStore((s) => s.updatePayout);
+  const pushToast = useDongStore((s) => s.pushToast);
+
+  const [payout, setPayout] = useState<PayoutInfo>(() => person.payout ?? { ...defaultPayoutInfo });
+
+  return (
+    <Sheet
+      open
+      onClose={onClose}
+      title={`${t.people.payoutTitle} — ${person.name}`}
+      footer={
+        <Button
+          block
+          onClick={() => {
+            updatePayout(person.id, payout);
+            pushToast('success', t.toast.saved);
+            onClose();
+          }}
+        >
+          {t.common.save}
+        </Button>
+      }
+    >
+      <div className="space-y-4">
+        <p className="text-xs leading-relaxed text-muted">
+          {person.scope === 'group' ? t.people.payoutScopeGroup : t.people.payoutScopeGlobal}
+        </p>
+        <PayoutForm
+          value={payout}
+          onChange={(data) => setPayout((prev) => ({ ...prev, ...data }))}
+        />
+      </div>
+    </Sheet>
   );
 }
