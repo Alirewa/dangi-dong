@@ -53,10 +53,7 @@ export function AppShell({
         */}
         <div className="px-4 pt-4">
           {parent && (
-            <nav
-              aria-label="breadcrumb"
-              className="mb-1 flex items-center gap-1 text-xs text-muted"
-            >
+            <nav aria-label="breadcrumb" className="flex items-center gap-1 text-xs text-muted">
               <Link href={parent.href} className="transition-colors hover:text-primary">
                 {parent.label}
               </Link>
@@ -65,10 +62,14 @@ export function AppShell({
                 left for Persian, and is flipped for English. Rotating it in RTL
                 instead pointed it back at the parent.
               */}
-              <ChevronLeft className="size-3.5 ltr:rotate-180" aria-hidden="true" />
+              <ChevronLeft className="size-3.5 shrink-0 ltr:rotate-180" aria-hidden="true" />
+              {/* The current page closes the trail; not a link, it is here. */}
+              <span aria-current="page" className="truncate text-foreground">
+                {title}
+              </span>
             </nav>
           )}
-          <h1 className="text-xl font-bold">{title}</h1>
+          <h1 className={`text-center text-xl font-bold ${parent ? 'mt-4' : ''}`}>{title}</h1>
         </div>
 
         {children}

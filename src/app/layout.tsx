@@ -11,14 +11,14 @@ import { STORAGE_KEY } from '@/lib/storageKey';
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
 export const metadata: Metadata = {
-  title: 'دنگ‌بندی | تقسیم هزینه گروهی',
+  title: 'دنگی دنگ | تقسیم هزینه گروهی',
   description:
     'تقسیم هزینه‌های مشترک بین دوستان و هم‌خانه‌ای‌ها، با ضریب و تسویه هوشمند. کاملاً آفلاین و بدون نیاز به حساب کاربری.',
-  applicationName: 'دنگ‌بندی',
+  applicationName: 'دنگی دنگ',
   manifest: `${basePath}/manifest.webmanifest`,
   appleWebApp: {
     capable: true,
-    title: 'دنگ‌بندی',
+    title: 'دنگی دنگ',
     statusBarStyle: 'default',
   },
   icons: {

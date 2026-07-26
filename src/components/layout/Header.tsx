@@ -20,27 +20,25 @@ export function Header({ back = false, actions }: { back?: boolean; actions?: Re
 
   const items = navItems(t);
 
+  // Top-level screens have neither a back button nor page actions, so on mobile
+  // the bar would be an empty strip — navigation is the fixed bottom bar there.
+  // Desktop still needs it, because that is where the nav lives.
+  const emptyOnMobile = !back && !actions;
+
   return (
-    <header className="safe-top sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
-      {/*
-        A minimum height rather than padding alone: pages with action buttons
-        were noticeably taller than pages without, so the bar appeared to
-        change size as you navigated. At py-2 it was also too cramped to read.
-      */}
+    <header
+      className={cn(
+        'safe-top sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur',
+        emptyOnMobile && 'hidden md:block'
+      )}
+    >
       <div className="mx-auto flex min-h-16 max-w-5xl items-center gap-2 px-2 py-2 md:min-h-14">
-        {/*
-          Page controls (back, edit) sit at the start of the bar — right in
-          Persian — and navigation at the far end. The page title is no longer
-          here at all: it lives in the body as a breadcrumb, which leaves the
-          bar to hold only controls.
-        */}
-        <div className="flex shrink-0 items-center gap-1">
-          {back && (
+        {/* Back on the leading edge — right in Persian. */}
+        {back && (
+          <>
             <IconButton label={t.common.back} onClick={() => router.back()} className="md:hidden">
               <BackIcon className="size-5" aria-hidden="true" />
             </IconButton>
-          )}
-          {back && (
             <Button
               variant="ghost"
               size="sm"
@@ -50,11 +48,13 @@ export function Header({ back = false, actions }: { back?: boolean; actions?: Re
             >
               {t.common.back}
             </Button>
-          )}
-          {actions}
-        </div>
+          </>
+        )}
 
         <span className="flex-1" aria-hidden="true" />
+
+        {/* Page actions sit at the opposite end from back, not beside it. */}
+        {actions}
 
         <nav aria-label={t.nav.groups} className="hidden md:block">
           <ul className="flex items-center gap-1">
@@ -81,8 +81,6 @@ export function Header({ back = false, actions }: { back?: boolean; actions?: Re
             })}
           </ul>
         </nav>
-
-        {/* Mobile navigation is the fixed bottom bar, so nothing more here. */}
       </div>
     </header>
   );

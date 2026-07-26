@@ -290,9 +290,10 @@ function GroupForm({ onClose, editing }: { onClose: () => void; editing: Group |
               block
               icon={<Plus className="size-4" aria-hidden="true" />}
               onClick={() => {
-                const p = addPerson({
-                  name: t.appName === 'دنگ‌بندی' ? 'من' : 'Me',
-                });
+                // Comparing appName was a fragile way to detect the locale and
+                // broke the moment the app was renamed. The word for "you" is
+                // already a translated string.
+                const p = addPerson({ name: t.common.you });
                 setMemberIds((prev) => [...prev, p.id]);
               }}
             >

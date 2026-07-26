@@ -7,8 +7,8 @@ export const dynamic = 'force-static';
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: `${bp}/`,
-    name: 'دنگ‌بندی — تقسیم هزینه گروهی',
-    short_name: 'دنگ‌بندی',
+    name: 'دنگی دنگ — تقسیم هزینه گروهی',
+    short_name: 'دنگی دنگ',
     description:
       'تقسیم هزینه‌های مشترک بین دوستان و هم‌خانه‌ای‌ها، با ضریب و تسویه هوشمند. کاملاً آفلاین.',
     start_url: `${bp}/`,

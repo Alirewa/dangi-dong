@@ -47,16 +47,11 @@ function GroupsScreen() {
   const [tab, setTab] = useState<'active' | 'archived'>('active');
   const [pendingDelete, setPendingDelete] = useState<Group | null>(null);
 
-  const archivedCount = useMemo(() => groups.filter((g) => g.archived).length, [groups]);
-
-  // Unarchiving the last archived group hides the tabs, so fall back to Active
-  // rather than leaving the user staring at an empty Archived list.
-  const effectiveTab = archivedCount === 0 ? 'active' : tab;
-
-  // Archived groups used to vanish with no way back; they now live behind a tab.
+  // Archived groups used to vanish with no way back; they live behind a tab
+  // that is always present, so the split is discoverable before it is needed.
   const visible = useMemo(
-    () => groups.filter((g) => (effectiveTab === 'archived' ? g.archived : !g.archived)),
-    [groups, effectiveTab]
+    () => groups.filter((g) => (tab === 'archived' ? g.archived : !g.archived)),
+    [groups, tab]
   );
 
   const statsOf = useMemo(() => {
@@ -85,34 +80,35 @@ function GroupsScreen() {
     <div className="space-y-4 p-4">
       <InstallPrompt />
 
-      {/* Only worth showing once something has actually been archived. */}
-      {archivedCount > 0 && (
-        <SegmentedControl
-          value={effectiveTab}
-          options={[
-            { value: 'active' as const, label: t.home.tabActive },
-            { value: 'archived' as const, label: t.home.tabArchived },
-          ]}
-          onChange={setTab}
-          label={t.home.title}
-        />
-      )}
+      <SegmentedControl
+        value={tab}
+        options={[
+          { value: 'active' as const, label: t.home.tabActive },
+          { value: 'archived' as const, label: t.home.tabArchived },
+        ]}
+        onChange={setTab}
+        label={t.home.title}
+      />
 
       {visible.length === 0 ? (
-        <EmptyState
-          icon={<Wallet className="size-12" />}
-          title={t.home.emptyTitle}
-          description={t.home.emptyDesc}
-          action={
-            <Button
-              size="lg"
-              icon={<Plus className="size-5" aria-hidden="true" />}
-              onClick={() => setFormOpen(true)}
-            >
-              {t.home.firstGroup}
-            </Button>
-          }
-        />
+        tab === 'archived' ? (
+          <EmptyState icon={<Archive className="size-12" />} title={t.home.emptyArchived} />
+        ) : (
+          <EmptyState
+            icon={<Wallet className="size-12" />}
+            title={t.home.emptyTitle}
+            description={t.home.emptyDesc}
+            action={
+              <Button
+                size="lg"
+                icon={<Plus className="size-5" aria-hidden="true" />}
+                onClick={() => setFormOpen(true)}
+              >
+                {t.home.firstGroup}
+              </Button>
+            }
+          />
+        )
       ) : (
         <>
           {/* Same shape as the people list: one card per row on a phone, a
@@ -193,7 +189,7 @@ function GroupsScreen() {
             })}
           </ul>
 
-          {effectiveTab === 'active' && (
+          {tab === 'active' && (
             <Button
               fullWidth
               size="lg"

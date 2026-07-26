@@ -1,6 +1,7 @@
 'use client';
 
-import { useId } from 'react';
+import { useState } from 'react';
+import { CalendarDays } from 'lucide-react';
 import { useT } from '@/hooks/useT';
 import { formatDate } from '@/lib/format';
 import {
@@ -11,26 +12,21 @@ import {
   jalaliToIso,
 } from '@/lib/jalali';
 import { toPersianDigits } from '@/lib/persian';
-import { todayIso } from '@/lib/utils';
-import { cn } from '@/lib/utils';
-
-function yesterdayIso(): string {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return todayIso(d);
-}
+import { cn, todayIso } from '@/lib/utils';
+import { Button } from './Button';
+import { Sheet } from './Sheet';
 
 /**
- * Jalali date entry, storing ISO Gregorian.
+ * Date entry for expenses.
  *
- * Three native <select>s rather than a calendar widget: they get the platform's
- * own wheel picker on mobile, need no CSS overrides (react-multi-date-picker
- * costs ~120 lines of them in factor-saz), and cannot produce an invalid date
- * because the day list is derived from the chosen month's real length.
+ * Nearly every expense is logged the day it happens, so "today" is a single
+ * tap and everything else sits behind a deliberate "pick a date" step rather
+ * than three selects permanently occupying the form.
  *
- * A Gregorian <input type="date"> was the previous behaviour and was simply
- * wrong for this audience — nobody logging household expenses in Iran thinks
- * in Gregorian dates.
+ * The year is never asked for: it is carried over from the current value —
+ * today's year for a new expense, the original year when editing an old one —
+ * so an old expense cannot silently jump into the present year. The resolved
+ * date is always spelled out, year included.
  */
 export function DateField({
   value,
@@ -44,106 +40,135 @@ export function DateField({
   disabled?: boolean;
 }) {
   const { t, locale } = useT();
-  const id = useId();
-
-  const { jy, jm, jd } = isoToJalali(value);
-  const months = locale === 'fa' ? JALALI_MONTHS_FA : JALALI_MONTHS_EN;
-  const daysInMonth = jalaliMonthLength(jy, jm);
-
-  const num = (n: number) => (locale === 'fa' ? toPersianDigits(n) : String(n));
-
-  // A decade back and one year forward covers logging past expenses without
-  // making the year list unusable.
-  const thisYear = isoToJalali(todayIso()).jy;
-  const years = Array.from({ length: 12 }, (_, i) => thisYear + 1 - i);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const today = todayIso();
-  const yesterday = yesterdayIso();
-
-  const chips = [
-    { iso: today, label: t.common.today },
-    { iso: yesterday, label: t.common.yesterday },
-  ];
-
-  const set = (next: Partial<{ jy: number; jm: number; jd: number }>) => {
-    onChange(jalaliToIso({ jy: next.jy ?? jy, jm: next.jm ?? jm, jd: next.jd ?? jd }));
-  };
-
-  const selectClass =
-    'min-h-11 rounded-lg border border-border bg-surface px-2 text-sm transition-colors ' +
-    'focus:border-primary disabled:opacity-60';
+  const isToday = value === today;
 
   return (
     <div className="space-y-2">
-      <span className="block text-sm font-medium" id={`${id}-label`}>
-        {label}
-      </span>
+      <span className="block text-sm font-medium">{label}</span>
 
-      <div className="flex flex-wrap gap-2" role="group" aria-labelledby={`${id}-label`}>
-        {chips.map((chip) => (
-          <button
-            key={chip.iso}
-            type="button"
-            disabled={disabled}
-            aria-pressed={value === chip.iso}
-            onClick={() => onChange(chip.iso)}
-            className={cn(
-              'min-h-9 rounded-lg border px-3 text-sm font-medium transition-colors',
-              value === chip.iso
-                ? 'border-primary bg-primary-soft text-primary'
-                : 'border-border bg-surface hover:bg-surface-2'
-            )}
-          >
-            {chip.label}
-          </button>
-        ))}
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={disabled}
+          aria-pressed={isToday}
+          onClick={() => onChange(today)}
+          className={cn(
+            'min-h-11 rounded-lg border px-4 text-sm font-medium transition-colors',
+            isToday
+              ? 'border-primary bg-primary-soft text-primary'
+              : 'border-border bg-surface hover:bg-surface-2'
+          )}
+        >
+          {t.common.today}
+          <span className="ms-2 text-xs opacity-70">{formatDate(today, locale)}</span>
+        </button>
+
+        <Button
+          type="button"
+          variant={isToday ? 'outline' : 'primary'}
+          disabled={disabled}
+          icon={<CalendarDays className="size-4" aria-hidden="true" />}
+          onClick={() => setPickerOpen(true)}
+        >
+          {t.common.pickDate}
+        </Button>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
-        <select
-          aria-label={t.common.day}
-          disabled={disabled}
-          value={jd}
-          onChange={(e) => set({ jd: Number(e.target.value) })}
-          className={selectClass}
-        >
-          {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
-            <option key={d} value={d}>
-              {num(d)}
-            </option>
-          ))}
-        </select>
+      {!isToday && <p className="text-xs text-muted">{formatDate(value, locale)}</p>}
 
-        <select
-          aria-label={t.common.month}
-          disabled={disabled}
-          value={jm}
-          onChange={(e) => set({ jm: Number(e.target.value) })}
-          className={selectClass}
-        >
-          {months.map((name, i) => (
-            <option key={name} value={i + 1}>
-              {name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          aria-label={t.common.year}
-          disabled={disabled}
-          value={jy}
-          onChange={(e) => set({ jy: Number(e.target.value) })}
-          className={selectClass}
-        >
-          {years.map((y) => (
-            <option key={y} value={y}>
-              {num(y)}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <p className="text-xs text-muted">{formatDate(value, locale)}</p>
+      {pickerOpen && (
+        <DatePickerSheet
+          value={value}
+          onClose={() => setPickerOpen(false)}
+          onPick={(iso) => {
+            onChange(iso);
+            setPickerOpen(false);
+          }}
+        />
+      )}
     </div>
+  );
+}
+
+function DatePickerSheet({
+  value,
+  onPick,
+  onClose,
+}: {
+  value: string;
+  onPick: (iso: string) => void;
+  onClose: () => void;
+}) {
+  const { t, locale } = useT();
+
+  const initial = isoToJalali(value);
+  const [jm, setJm] = useState(initial.jm);
+  const [jd, setJd] = useState(initial.jd);
+
+  const jy = initial.jy;
+  const months = locale === 'fa' ? JALALI_MONTHS_FA : JALALI_MONTHS_EN;
+  const daysInMonth = jalaliMonthLength(jy, jm);
+  const num = (n: number) => (locale === 'fa' ? toPersianDigits(n) : String(n));
+
+  // Switching from a 31-day month to a shorter one must not leave an
+  // impossible day selected.
+  const safeDay = Math.min(jd, daysInMonth);
+  const iso = jalaliToIso({ jy, jm, jd: safeDay });
+
+  const selectClass =
+    'min-h-11 w-full rounded-lg border border-border bg-surface px-2 text-base transition-colors focus:border-primary';
+
+  return (
+    <Sheet
+      open
+      onClose={onClose}
+      title={t.common.pickDate}
+      footer={
+        <Button block size="lg" onClick={() => onPick(iso)}>
+          {t.common.confirm}
+        </Button>
+      }
+    >
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <label className="space-y-1.5">
+            <span className="block text-sm font-medium">{t.common.month}</span>
+            <select
+              value={jm}
+              onChange={(e) => setJm(Number(e.target.value))}
+              className={selectClass}
+            >
+              {months.map((name, i) => (
+                <option key={name} value={i + 1}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="space-y-1.5">
+            <span className="block text-sm font-medium">{t.common.day}</span>
+            <select
+              value={safeDay}
+              onChange={(e) => setJd(Number(e.target.value))}
+              className={selectClass}
+            >
+              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
+                <option key={d} value={d}>
+                  {num(d)}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <p className="rounded-lg bg-surface-2 px-3 py-2 text-center text-sm font-medium">
+          {formatDate(iso, locale)}
+        </p>
+      </div>
+    </Sheet>
   );
 }

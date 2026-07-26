@@ -1,7 +1,7 @@
 import type { Dict } from './fa';
 
 export const en: Dict = {
-  appName: 'Dongbandi',
+  appName: 'Dangi Dong',
   appTagline: 'Split shared expenses',
 
   common: {
@@ -22,7 +22,7 @@ export const en: Dict = {
     optional: 'optional',
     today: 'Today',
     yesterday: 'Yesterday',
-    changeDate: 'Change date',
+    pickDate: 'Pick a date',
     day: 'Day',
     month: 'Month',
     year: 'Year',
@@ -77,6 +77,7 @@ export const en: Dict = {
     archived: 'Archived',
     tabActive: 'Active groups',
     tabArchived: 'Archived',
+    emptyArchived: 'No archived groups',
     archive: 'Archive',
     unarchive: 'Unarchive',
     deleteGroupTitle: 'Delete this group?',

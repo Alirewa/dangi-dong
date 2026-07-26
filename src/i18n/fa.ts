@@ -3,7 +3,7 @@
  * type-checked against this shape and a missing key is a build error.
  */
 export const fa = {
-  appName: 'دنگ‌بندی',
+  appName: 'دنگی دنگ',
   appTagline: 'تقسیم هزینه‌های مشترک',
 
   common: {
@@ -24,7 +24,7 @@ export const fa = {
     optional: 'اختیاری',
     today: 'امروز',
     yesterday: 'دیروز',
-    changeDate: 'تغییر تاریخ',
+    pickDate: 'انتخاب دستی تاریخ',
     day: 'روز',
     month: 'ماه',
     year: 'سال',
@@ -79,6 +79,7 @@ export const fa = {
     archived: 'بایگانی‌شده',
     tabActive: 'گروه‌های فعال',
     tabArchived: 'گروه‌های آرشیو',
+    emptyArchived: 'گروه بایگانی‌شده‌ای ندارید',
     archive: 'بایگانی',
     unarchive: 'خروج از بایگانی',
     deleteGroupTitle: 'حذف گروه؟',
@@ -285,7 +286,7 @@ export const fa = {
     resetTitle: 'پاک کردن همه داده‌ها؟',
     resetDesc: 'همه گروه‌ها، افراد و هزینه‌ها برای همیشه پاک می‌شوند. اول پشتیبان بگیرید.',
     about: 'درباره',
-    aboutText: 'دنگ‌بندی یک برنامه کاملاً آفلاین است. هیچ داده‌ای به جایی ارسال نمی‌شود.',
+    aboutText: 'دنگی دنگ یک برنامه کاملاً آفلاین است. هیچ داده‌ای به جایی ارسال نمی‌شود.',
     privateWarning: 'در حالت ناشناس مرورگر، با بستن تب همه داده‌ها پاک می‌شوند.',
   },
 
