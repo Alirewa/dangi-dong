@@ -60,8 +60,12 @@ export function AppShell({
               <Link href={parent.href} className="transition-colors hover:text-primary">
                 {parent.label}
               </Link>
-              {/* rtl:rotate flips the chevron to point along the reading direction */}
-              <ChevronLeft className="size-3.5 rtl:rotate-180" aria-hidden="true" />
+              {/*
+                The chevron follows the reading direction: it already points
+                left for Persian, and is flipped for English. Rotating it in RTL
+                instead pointed it back at the parent.
+              */}
+              <ChevronLeft className="size-3.5 ltr:rotate-180" aria-hidden="true" />
             </nav>
           )}
           <h1 className="text-xl font-bold">{title}</h1>

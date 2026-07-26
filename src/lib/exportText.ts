@@ -2,7 +2,7 @@ import type { Dict } from '@/i18n';
 import type { Group, Locale, Period, Person } from '@/types/dong';
 import type { SettlementResult } from '@/types/settlement';
 import { formatCardNumber } from './bank';
-import { currencyLabel, formatDate, formatJalaliMonth, formatNumber } from './format';
+import { currencyLabel, flowArrow, formatDate, formatJalaliMonth, formatNumber } from './format';
 
 /**
  * Plain-text summary for pasting into a Telegram/WhatsApp group.
@@ -27,6 +27,7 @@ export function buildSummaryText({
 }): string {
   const nameOf = (id: string) => people.find((p) => p.id === id)?.name ?? '—';
   const money = (v: number) => `${formatNumber(v, locale)} ${currencyLabel(locale)}`;
+  const arrow = flowArrow(locale === 'fa' ? 'rtl' : 'ltr');
 
   const subtitle =
     group.mode === 'monthly' && period
@@ -76,7 +77,7 @@ export function buildSummaryText({
   } else {
     for (const transfer of settlement.transfers) {
       lines.push(
-        `   ${nameOf(transfer.fromPersonId)} ➜ ${nameOf(transfer.toPersonId)}: ${money(
+        `   ${nameOf(transfer.fromPersonId)} ${arrow} ${nameOf(transfer.toPersonId)}: ${money(
           transfer.amount
         )}`
       );

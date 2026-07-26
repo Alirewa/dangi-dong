@@ -72,7 +72,7 @@ Note that the JSON backup file contains any saved card numbers.
 - **Every displayed number goes through `<Money>` or `<Count>`.** A bare number inside RTL text is reordered by the bidi algorithm into a different, plausible-looking value.
 - **Dates are stored as ISO Gregorian** and converted only at the UI boundary. Jalali entry and display are handled in `lib/jalali.ts`.
 
-Store schema changes ship with a migration: v2 converted group emoji to icon keys, v3 introduced the owner (“you”) identity. Older JSON backups are mapped through the same paths on import.
+Store schema changes ship with a migration: v2 converted group emoji to icon keys, v3 introduced the owner (“you”) identity, v4 added usage tracking. Older JSON backups are mapped through the same paths on import.
 
 ## Testing
 

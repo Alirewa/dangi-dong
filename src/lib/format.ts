@@ -36,6 +36,18 @@ export function currencyLabel(locale: Locale): string {
   return locale === 'fa' ? 'تومان' : 'Toman';
 }
 
+/**
+ * Arrow for "from → to", pointing along the reading direction.
+ *
+ * In RTL the payer is rendered to the right of the recipient, so the arrow has
+ * to point left; a fixed ➜ pointed back at the payer and read as if the money
+ * flowed the wrong way. Centralised so the image, the PDF and the text summary
+ * cannot disagree.
+ */
+export function flowArrow(dir: 'rtl' | 'ltr'): string {
+  return dir === 'rtl' ? '◀' : '▶';
+}
+
 /** Used only by exportText.ts, which has no React and so cannot use <Money>. */
 export function formatMoneyText(value: number, locale: Locale): string {
   return `${formatNumber(value, locale)} ${currencyLabel(locale)}`;

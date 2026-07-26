@@ -100,7 +100,6 @@ interface DongStore extends PersistedShape {
   addAdHocMember: (groupId: string, name: string) => Person;
   removeMember: (groupId: string, personId: string) => boolean;
   reorderMembers: (groupId: string, ids: string[]) => void;
-  setTreasurer: (groupId: string, personId: string | null) => void;
 
   // periods
   ensurePeriod: (groupId: string) => Period | null;
@@ -417,13 +416,6 @@ export const useDongStore = create<DongStore>()(
       reorderMembers: (groupId, ids) =>
         set((s) => ({
           groups: s.groups.map((g) => (g.id === groupId ? touch({ ...g, memberIds: ids }) : g)),
-        })),
-
-      setTreasurer: (groupId, personId) =>
-        set((s) => ({
-          groups: s.groups.map((g) =>
-            g.id === groupId ? touch({ ...g, treasurerId: personId }) : g
-          ),
         })),
 
       // ── periods ────────────────────────────────────────────────────────────

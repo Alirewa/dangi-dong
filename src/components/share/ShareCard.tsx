@@ -2,7 +2,13 @@
 
 import { GROUP_ICONS } from '@/components/groups/groupIcons';
 import { formatCardNumber, formatIban } from '@/lib/bank';
-import { currencyLabel, formatDate, formatJalaliMonth, formatNumber } from '@/lib/format';
+import {
+  currencyLabel,
+  flowArrow,
+  formatDate,
+  formatJalaliMonth,
+  formatNumber,
+} from '@/lib/format';
 import { SHARE_WIDTH } from '@/lib/exportImage';
 import type { Dict } from '@/i18n';
 import type { Group, Locale, Period, Person } from '@/types/dong';
@@ -102,8 +108,7 @@ export function ShareCard({
         : '';
 
   const alignEnd = dir === 'rtl' ? ('left' as const) : ('right' as const);
-  // Arrows must point along the reading direction, not against it.
-  const arrow = dir === 'rtl' ? '◀' : '▶';
+  const arrow = flowArrow(dir);
 
   // Debtors first: they are the people who have something to do.
   const rows = [...settlement.balances].sort((a, b) => {

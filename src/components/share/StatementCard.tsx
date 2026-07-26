@@ -1,7 +1,13 @@
 'use client';
 
 import { STATEMENT_WIDTH } from '@/lib/exportImage';
-import { currencyLabel, formatDate, formatJalaliMonth, formatNumber } from '@/lib/format';
+import {
+  currencyLabel,
+  flowArrow,
+  formatDate,
+  formatJalaliMonth,
+  formatNumber,
+} from '@/lib/format';
 import type { Dict } from '@/i18n';
 import type { Expense, Group, Locale, Period, Person } from '@/types/dong';
 import type { SettlementResult } from '@/types/settlement';
@@ -251,7 +257,7 @@ export function StatementCard({
             key={`${transfer.fromPersonId}-${transfer.toPersonId}-${i}`}
             style={{ padding: '5px 0', borderBottom: `1px solid ${C.border}` }}
           >
-            {nameOf(transfer.fromPersonId)} ➜ {nameOf(transfer.toPersonId)}:{' '}
+            {nameOf(transfer.fromPersonId)} {flowArrow(dir)} {nameOf(transfer.toPersonId)}:{' '}
             {num(money(transfer.amount), true)} {currencyLabel(locale)}
           </div>
         ))

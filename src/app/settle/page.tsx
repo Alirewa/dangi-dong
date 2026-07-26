@@ -27,7 +27,7 @@ import { useT } from '@/hooks/useT';
 import { formatCardNumber, formatIban } from '@/lib/bank';
 import { copyText } from '@/lib/clipboard';
 import { fmt } from '@/i18n';
-import { formatNumber } from '@/lib/format';
+import { flowArrow, formatNumber } from '@/lib/format';
 import {
   SHARE_CARD_ID,
   STATEMENT_CARD_ID,
@@ -231,7 +231,7 @@ function SettleScreen() {
                       {nameOf(transfer.fromPersonId)}
                     </span>
                     <span className="text-primary" aria-label={t.settle.payTo}>
-                      ←
+                      {flowArrow(dir)}
                     </span>
                     <span className="flex-1 truncate text-sm font-medium">
                       {nameOf(transfer.toPersonId)}

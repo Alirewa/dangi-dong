@@ -131,7 +131,6 @@ export const en: Dict = {
     newPeriod: 'New month',
     periodClosed: 'This month is closed and its expenses cannot be edited.',
     treasurer: 'Main payer',
-    treasurerAuto: 'Automatic (largest creditor)',
     setTreasurer: 'Choose main payer',
     addMember: 'Add member',
     removeMember: 'Remove from group',
@@ -274,7 +273,6 @@ export const en: Dict = {
     importReplaceDesc: 'All current data is erased and replaced by the file.',
     importMergeDesc: 'New items are added and duplicates are updated to the newer version.',
     importInvalid: 'That file is not valid',
-    importDone: 'Restore complete',
     lastBackup: 'Last backup: {date}',
     neverBackedUp: 'You have never backed up',
     backupReminder:
