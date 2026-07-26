@@ -1,4 +1,4 @@
-import type { Expense, Group, Person, RoundTo, TransferStrategy } from '@/types/dong';
+import type { Expense, Group, Payment, Person, RoundTo, TransferStrategy } from '@/types/dong';
 import type { BreakdownLine, PersonBalance, SettlementResult, Transfer } from '@/types/settlement';
 import { allocate, quantize, sum } from './money';
 
@@ -96,7 +96,8 @@ export function computeBalances(
   expenses: Expense[],
   people: Person[],
   memberIds: string[],
-  opts: SplitOptions = {}
+  opts: SplitOptions = {},
+  payments: Payment[] = []
 ): {
   balances: PersonBalance[];
   perExpense: Record<string, Record<string, number>>;
@@ -110,12 +111,26 @@ export function computeBalances(
     for (const p of e.payers) ids.add(p.personId);
     for (const s of e.shares) if (s.included) ids.add(s.personId);
   }
+  // A repayment can involve someone already removed from the group; leaving
+  // them out would silently drop their money from the balance.
+  for (const p of payments) {
+    ids.add(p.fromPersonId);
+    ids.add(p.toPersonId);
+  }
 
   const acc = new Map<
     string,
-    { paid: number; owed: number; count: number; lines: BreakdownLine[] }
+    {
+      paid: number;
+      owed: number;
+      repaid: number;
+      received: number;
+      count: number;
+      lines: BreakdownLine[];
+    }
   >();
-  for (const id of ids) acc.set(id, { paid: 0, owed: 0, count: 0, lines: [] });
+  for (const id of ids)
+    acc.set(id, { paid: 0, owed: 0, repaid: 0, received: 0, count: 0, lines: [] });
 
   const perExpense: Record<string, Record<string, number>> = {};
 
@@ -153,6 +168,18 @@ export function computeBalances(
     }
   }
 
+  // Repayments are applied after the expense pass: they move a fixed amount
+  // between two people rather than being shared out, so they never touch the
+  // per-expense split.
+  for (const p of payments) {
+    const amount = Math.round(p.amount);
+    if (amount <= 0) continue;
+    const from = acc.get(p.fromPersonId);
+    const to = acc.get(p.toPersonId);
+    if (from) from.repaid += amount;
+    if (to) to.received += amount;
+  }
+
   const order = new Map(memberIds.map((id, i) => [id, i]));
   const balances: PersonBalance[] = [...ids].map((id) => {
     const entry = acc.get(id)!;
@@ -163,7 +190,9 @@ export function computeBalances(
       color: person?.color ?? '#64748b',
       paid: entry.paid,
       owed: entry.owed,
-      net: entry.paid - entry.owed,
+      repaid: entry.repaid,
+      received: entry.received,
+      net: entry.paid - entry.owed + entry.repaid - entry.received,
       expenseCount: entry.count,
       lines: entry.lines,
     };
@@ -253,6 +282,8 @@ export interface SettleInput {
   periodId: string | null;
   /** caller pre-filters by group AND period */
   expenses: Expense[];
+  /** repayments, pre-filtered by the same group AND period */
+  payments?: Payment[];
   people: Person[];
   roundTo?: RoundTo;
   strategy?: TransferStrategy;
@@ -260,6 +291,7 @@ export interface SettleInput {
 
 export function settle(input: SettleInput): SettlementResult {
   const { group, periodId, expenses, people } = input;
+  const payments = input.payments ?? [];
   const roundTo = input.roundTo ?? 1;
   const strategy = input.strategy ?? 'treasurer-first';
 
@@ -267,15 +299,16 @@ export function settle(input: SettleInput): SettlementResult {
   // second re-splits with the treasurer as the residual holder, so rounding
   // lands on the person who actually fronted the money rather than on whoever
   // happened to sort first.
-  const first = computeBalances(expenses, people, group.memberIds, {
-    roundTo: 1,
-  });
+  const first = computeBalances(expenses, people, group.memberIds, { roundTo: 1 }, payments);
   const treasurerId = pickTreasurer(first.balances, group.treasurerId, group.memberIds);
 
-  const { balances, perExpense } = computeBalances(expenses, people, group.memberIds, {
-    roundTo,
-    residualPersonId: treasurerId,
-  });
+  const { balances, perExpense } = computeBalances(
+    expenses,
+    people,
+    group.memberIds,
+    { roundTo, residualPersonId: treasurerId },
+    payments
+  );
 
   const transfers = minimizeTransfers(
     balances.map((b) => ({ personId: b.personId, net: b.net })),
@@ -301,6 +334,7 @@ export function settle(input: SettleInput): SettlementResult {
     periodId,
     total,
     expenseCount: expenses.length,
+    repaidTotal: sum(payments.map((p) => Math.round(p.amount))),
     balances,
     transfers,
     treasurerId,

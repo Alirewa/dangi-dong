@@ -72,6 +72,7 @@ function SettingsScreen() {
       groups: store.groups,
       periods: store.periods,
       expenses: store.expenses,
+      payments: store.payments,
       settings: store.settings,
       activeGroupId: null,
     });

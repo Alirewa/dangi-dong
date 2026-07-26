@@ -188,7 +188,10 @@ export function ShareCard({
           <tbody>
             {rows.map((b, i) => {
               const debt = owes.get(b.personId);
-              const isReceiver = b.personId === settlement.treasurerId && !debt;
+              const isReceiver = b.net > 0 && !debt;
+              // Fully repaid: no arrow and nothing to receive, so the amount
+              // alone would read as an outstanding debt.
+              const isSettled = !debt && b.net === 0;
               return (
                 <tr
                   key={b.personId}
@@ -240,6 +243,17 @@ export function ShareCard({
                         {t.settle.creditor}
                       </span>
                     )}
+                    {isSettled && (
+                      <span
+                        style={{
+                          marginInlineStart: 10,
+                          fontSize: 13,
+                          color: C.muted,
+                        }}
+                      >
+                        {t.settle.settled}
+                      </span>
+                    )}
                   </td>
                   <td
                     style={{
@@ -248,7 +262,7 @@ export function ShareCard({
                       borderBottom: `1px solid ${C.border}`,
                     }}
                   >
-                    <Num bold size={20} color={debt ? C.text : C.positive}>
+                    <Num bold size={20} color={debt ? C.text : isSettled ? C.muted : C.positive}>
                       {money(debt ? debt.amount : isReceiver ? b.net : b.owed)}
                     </Num>
                     <span

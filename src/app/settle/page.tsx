@@ -1,15 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import {
-  Calculator,
-  CheckCircle2,
-  Copy,
-  FileText,
-  Image as ImageIcon,
-  Printer,
-  Share2,
-} from 'lucide-react';
+import { Calculator, CheckCircle2, Copy, FileText, Image as ImageIcon, Share2 } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { HydrationGate } from '@/components/layout/HydrationGate';
 import { ShareCard } from '@/components/share/ShareCard';
@@ -351,14 +343,6 @@ function SettleScreen() {
             onClick={onPdf}
           >
             {t.settle.exportPdf}
-          </Button>
-          <Button
-            variant="ghost"
-            className="col-span-2"
-            icon={<Printer className="size-4" aria-hidden="true" />}
-            onClick={() => window.print()}
-          >
-            {t.settle.print}
           </Button>
         </div>
       </div>

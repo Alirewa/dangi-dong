@@ -8,6 +8,7 @@ import { HydrationGate } from '@/components/layout/HydrationGate';
 import { GroupFormSheet } from '@/components/groups/GroupFormSheet';
 import { PeriodSwitcher } from '@/components/groups/PeriodSwitcher';
 import { ExpenseList } from '@/components/expenses/ExpenseList';
+import { PaymentsTab } from '@/components/payments/PaymentsTab';
 import { PersonAvatar } from '@/components/ui/PersonAvatar';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { Button } from '@/components/ui/Button';
@@ -21,7 +22,7 @@ import { useSettlement } from '@/hooks/useSettlement';
 import { useT } from '@/hooks/useT';
 import { expensesOf, useDongStore } from '@/store/dongStore';
 
-type Tab = 'expenses' | 'members' | 'summary';
+type Tab = 'expenses' | 'payments' | 'members' | 'summary';
 
 export default function GroupPage() {
   return (
@@ -61,6 +62,7 @@ function GroupScreen() {
 
   const tabs: { value: Tab; label: string }[] = [
     { value: 'expenses', label: t.group.tabExpenses },
+    { value: 'payments', label: t.group.tabPayments },
     { value: 'members', label: t.group.tabMembers },
     { value: 'summary', label: t.group.tabSummary },
   ];
@@ -83,7 +85,7 @@ function GroupScreen() {
     >
       <div className="space-y-4 p-4">
         {group.mode === 'monthly' && (
-          <PeriodSwitcher group={group} period={period} periods={periods} />
+          <PeriodSwitcher group={group} period={period} periods={periods} expenses={expenses} />
         )}
 
         <div className="flex items-center justify-between rounded-lg bg-surface-2 px-4 py-3">
@@ -96,6 +98,8 @@ function GroupScreen() {
         {tab === 'expenses' && (
           <ExpenseList expenses={expenses} people={people} readOnly={readOnly} />
         )}
+
+        {tab === 'payments' && <PaymentsTab group={group} readOnly={readOnly} />}
 
         {tab === 'members' && <MembersTab groupId={group.id} />}
 

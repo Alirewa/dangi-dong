@@ -61,6 +61,10 @@ export function parseBackup(text: string): ParseResult {
       groups: groups as unknown as PersistedShape['groups'],
       periods: periods as unknown as PersistedShape['periods'],
       expenses: expenses as unknown as PersistedShape['expenses'],
+      // Absent in backups written before repayments existed.
+      payments: isArrayOfObjects(data.payments)
+        ? (data.payments as unknown as PersistedShape['payments'])
+        : [],
       settings: {
         ...defaultSettings,
         ...(data.settings as object | undefined),

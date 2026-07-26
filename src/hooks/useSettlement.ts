@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { expensesOf, useDongStore } from '@/store/dongStore';
+import { expensesOf, paymentsOf, useDongStore } from '@/store/dongStore';
 import { settle } from '@/lib/settlement';
 import type { SettlementResult } from '@/types/settlement';
 import type { Group } from '@/types/dong';
@@ -18,20 +18,22 @@ export function useSettlement(
   periodId: string | null
 ): SettlementResult | null {
   const expenses = useDongStore((s) => s.expenses);
+  const payments = useDongStore((s) => s.payments);
   const people = useDongStore((s) => s.people);
   const roundTo = useDongStore((s) => s.settings.roundTo);
   const strategy = useDongStore((s) => s.settings.transferStrategy);
 
   return useMemo(() => {
     if (!group) return null;
-    const scoped = expensesOf(expenses, group.id, group.mode === 'monthly' ? periodId : null);
+    const scope = group.mode === 'monthly' ? periodId : null;
     return settle({
       group,
       periodId,
-      expenses: scoped,
+      expenses: expensesOf(expenses, group.id, scope),
+      payments: paymentsOf(payments, group.id, scope),
       people,
       roundTo,
       strategy,
     });
-  }, [group, periodId, expenses, people, roundTo, strategy]);
+  }, [group, periodId, expenses, payments, people, roundTo, strategy]);
 }

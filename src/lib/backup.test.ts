@@ -8,6 +8,7 @@ const empty: PersistedShape = {
   groups: [],
   periods: [],
   expenses: [],
+  payments: [],
   settings: defaultSettings,
   activeGroupId: null,
 };

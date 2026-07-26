@@ -22,7 +22,16 @@ export interface PersonBalance {
   paid: number;
   /** Σ share amounts */
   owed: number;
-  /** paid − owed. >0 creditor, <0 debtor, 0 settled */
+  /** Σ repayments this person handed to someone else */
+  repaid: number;
+  /** Σ repayments this person received */
+  received: number;
+  /**
+   * paid − owed + repaid − received. >0 creditor, <0 debtor, 0 settled.
+   *
+   * Repayments cancel out in the sum (+A for the payer, −A for the receiver),
+   * so Σ net === 0 still holds and the settlement stays solvable.
+   */
   net: number;
   /** how many expenses this person was included in */
   expenseCount: number;
@@ -48,6 +57,8 @@ export interface SettlementResult {
   /** Σ expense.amount */
   total: number;
   expenseCount: number;
+  /** Σ repayments recorded in this scope */
+  repaidTotal: number;
   /** creditors desc → zeros → debtors asc */
   balances: PersonBalance[];
   transfers: Transfer[];

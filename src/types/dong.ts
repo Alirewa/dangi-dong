@@ -185,6 +185,32 @@ export interface Expense {
   updatedAt: string;
 }
 
+// ── repayments ───────────────────────────────────────────────────────────────
+
+/**
+ * Money actually handed over, as opposed to money owed.
+ *
+ * An expense records who fronted a cost; this records someone settling part of
+ * their share afterwards. It offsets the balances rather than being a negative
+ * expense: a repayment is not shared out between members, it moves a fixed
+ * amount from one person to another.
+ */
+export interface Payment {
+  id: string;
+  groupId: string;
+  /** monthly → the period it is filed under; event → always null */
+  periodId: string | null;
+  fromPersonId: string;
+  toPersonId: string;
+  /** integer Toman */
+  amount: number;
+  /** ISO Gregorian YYYY-MM-DD */
+  date: string;
+  note: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // ── settings ─────────────────────────────────────────────────────────────────
 
 export interface Settings {

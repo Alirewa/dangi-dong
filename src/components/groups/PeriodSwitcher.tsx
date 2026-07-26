@@ -1,27 +1,33 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, Lock, LockOpen, Plus } from 'lucide-react';
+import { useState } from 'react';
+import { ChartPie, ChevronLeft, ChevronRight, Lock, LockOpen, Plus } from 'lucide-react';
 import { useT } from '@/hooks/useT';
 import { formatJalaliMonth } from '@/lib/format';
 import { nextMonth } from '@/lib/jalali';
 import { useDongStore } from '@/store/dongStore';
-import type { Group, Period } from '@/types/dong';
+import type { Expense, Group, Period } from '@/types/dong';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { IconButton } from '@/components/ui/IconButton';
+import { MonthOverviewSheet } from './MonthOverviewSheet';
 
 export function PeriodSwitcher({
   group,
   period,
   periods,
+  expenses,
 }: {
   group: Group;
   period: Period | null;
   periods: Period[];
+  /** the current period's expenses, for the overview breakdown */
+  expenses: Expense[];
 }) {
   const { t, locale, isRtl } = useT();
   const setActivePeriod = useDongStore((s) => s.setActivePeriod);
   const closePeriod = useDongStore((s) => s.closePeriod);
   const addPeriod = useDongStore((s) => s.addPeriod);
+  const [overviewOpen, setOverviewOpen] = useState(false);
 
   if (!period) return null;
 
@@ -63,7 +69,9 @@ export function PeriodSwitcher({
 
         {/* The month arrows are self-explanatory next to the month name, but
             these two change state, so they carry text. */}
-        <div className="flex justify-center gap-1 border-t border-border pt-1">
+        {/* Wraps because the English labels are longer than the Persian ones
+            and three buttons only just fit a 375px screen. */}
+        <div className="flex flex-wrap items-center gap-1 border-t border-border pt-1">
           <ActionButton
             icon={
               period.closed ? (
@@ -89,8 +97,25 @@ export function PeriodSwitcher({
               {t.group.newPeriod}
             </ActionButton>
           )}
+
+          {/* Pushed to the far end of the row, opposite the month controls. */}
+          <ActionButton
+            className="ms-auto"
+            icon={<ChartPie className="size-4" aria-hidden="true" />}
+            onClick={() => setOverviewOpen(true)}
+          >
+            {t.overview.open}
+          </ActionButton>
         </div>
       </div>
+
+      {overviewOpen && (
+        <MonthOverviewSheet
+          period={period}
+          expenses={expenses}
+          onClose={() => setOverviewOpen(false)}
+        />
+      )}
 
       {period.closed && (
         <p className="rounded-lg bg-warning-soft px-3 py-2 text-xs leading-relaxed text-warning">

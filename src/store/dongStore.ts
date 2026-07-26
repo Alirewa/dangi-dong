@@ -15,6 +15,7 @@ import {
   type GroupMode,
   type Locale,
   type PayoutInfo,
+  type Payment,
   type Period,
   type Person,
   type PersonScope,
@@ -37,6 +38,7 @@ export interface PersistedShape {
   groups: Group[];
   periods: Period[];
   expenses: Expense[];
+  payments: Payment[];
   settings: Settings;
   activeGroupId: string | null;
 }
@@ -51,6 +53,15 @@ export interface NewExpenseInput {
   payers?: ExpensePayer[];
   splitKind?: SplitKind;
   shares?: ExpenseShare[];
+  note?: string;
+}
+
+export interface NewPaymentInput {
+  groupId: string;
+  fromPersonId: string;
+  toPersonId: string;
+  amount: number;
+  date?: string;
   note?: string;
 }
 
@@ -114,6 +125,11 @@ interface DongStore extends PersistedShape {
   removeExpense: (id: string) => void;
   duplicateExpense: (id: string) => Expense | null;
   setShare: (expenseId: string, personId: string, data: Partial<ExpenseShare>) => void;
+
+  // repayments
+  addPayment: (input: NewPaymentInput) => Payment;
+  updatePayment: (id: string, data: Partial<Omit<Payment, 'id' | 'groupId' | 'createdAt'>>) => void;
+  removePayment: (id: string) => void;
   setSplitKind: (expenseId: string, kind: SplitKind) => void;
   setSinglePayer: (expenseId: string, personId: string) => void;
   setPayers: (expenseId: string, payers: ExpensePayer[]) => void;
@@ -177,6 +193,7 @@ const emptyState: PersistedShape = {
   groups: [],
   periods: [],
   expenses: [],
+  payments: [],
   settings: defaultSettings,
   activeGroupId: null,
 };
@@ -282,6 +299,8 @@ export const useDongStore = create<DongStore>()(
       removePerson: (id) =>
         set((s) => ({
           people: s.people.filter((p) => p.id !== id),
+          // A repayment naming a deleted person can no longer be reconciled.
+          payments: s.payments.filter((p) => p.fromPersonId !== id && p.toPersonId !== id),
           settings:
             s.settings.selfPersonId === id ? { ...s.settings, selfPersonId: null } : s.settings,
           groups: s.groups.map((g) =>
@@ -345,6 +364,7 @@ export const useDongStore = create<DongStore>()(
         set((s) => ({
           groups: s.groups.filter((g) => g.id !== id),
           expenses: s.expenses.filter((e) => e.groupId !== id),
+          payments: s.payments.filter((p) => p.groupId !== id),
           periods: s.periods.filter((p) => p.groupId !== id),
           // Ad-hoc people belong to the group and die with it; globals survive.
           people: s.people.filter((p) => !(p.scope === 'group' && p.groupId === id)),
@@ -563,6 +583,50 @@ export const useDongStore = create<DongStore>()(
 
       removeExpense: (id) => set((s) => ({ expenses: s.expenses.filter((e) => e.id !== id) })),
 
+      addPayment: ({ groupId, fromPersonId, toPersonId, amount, date, note = '' }) => {
+        const group = get().groups.find((g) => g.id === groupId);
+        // Invariant 3 applies to repayments too: monthly groups file them under
+        // a period, event groups never do.
+        const periodId =
+          group?.mode === 'monthly'
+            ? (group.activePeriodId ?? get().ensurePeriod(groupId)?.id ?? null)
+            : null;
+
+        const payment: Payment = {
+          id: uid(),
+          groupId,
+          periodId,
+          fromPersonId,
+          toPersonId,
+          amount: Math.max(0, Math.round(amount)),
+          date: date ?? todayIso(),
+          note,
+          createdAt: nowIso(),
+          updatedAt: nowIso(),
+        };
+        set((s) => ({
+          payments: [...s.payments, payment],
+          groups: s.groups.map((g) => (g.id === groupId ? touch(g) : g)),
+        }));
+        return payment;
+      },
+
+      updatePayment: (id, data) =>
+        set((s) => ({
+          payments: s.payments.map((p) =>
+            p.id === id
+              ? touch({
+                  ...p,
+                  ...data,
+                  amount:
+                    data.amount === undefined ? p.amount : Math.max(0, Math.round(data.amount)),
+                })
+              : p
+          ),
+        })),
+
+      removePayment: (id) => set((s) => ({ payments: s.payments.filter((p) => p.id !== id) })),
+
       duplicateExpense: (id) => {
         const src = get().expenses.find((e) => e.id === id);
         if (!src) return null;
@@ -637,6 +701,7 @@ export const useDongStore = create<DongStore>()(
           })),
           periods: data.periods,
           expenses: data.expenses,
+          payments: data.payments ?? [],
           settings: { ...defaultSettings, ...data.settings },
           activeGroupId: null,
         }),
@@ -652,13 +717,14 @@ export const useDongStore = create<DongStore>()(
           ),
           periods: mergeById(s.periods, data.periods, (p) => p.createdAt),
           expenses: mergeById(s.expenses, data.expenses, (e) => e.updatedAt),
+          payments: mergeById(s.payments, data.payments ?? [], (p) => p.updatedAt),
         })),
 
       resetAll: () => set({ ...emptyState, toasts: [], editingExpenseId: null }),
     }),
     {
       name: STORAGE_KEY,
-      version: 4,
+      version: 5,
       storage: createJSONStorage(() => localStorage),
       /**
        * v2: `group.emoji` (an emoji character) became `group.icon` (a key), so
@@ -668,6 +734,7 @@ export const useDongStore = create<DongStore>()(
        *     seed created is adopted as the owner.
        * v4: added usage tracking and the star-prompt gate; older settings
        *     objects just need the new keys backfilled.
+       * v5: added `payments` (repayments), which simply starts empty.
        */
       migrate: (persisted, from) => {
         const state = persisted as PersistedShape | undefined;
@@ -699,6 +766,11 @@ export const useDongStore = create<DongStore>()(
           };
         }
 
+        if (from < 5) {
+          // `payments` did not exist before v5.
+          state.payments = state.payments ?? [];
+        }
+
         if (from < 4) {
           state.settings = { ...defaultSettings, ...state.settings };
         }
@@ -714,6 +786,7 @@ export const useDongStore = create<DongStore>()(
         groups: s.groups,
         periods: s.periods,
         expenses: s.expenses,
+        payments: s.payments,
         settings: s.settings,
         activeGroupId: s.activeGroupId,
       }),
@@ -744,6 +817,16 @@ export function expensesOf(
 ): Expense[] {
   return expenses.filter(
     (e) => e.groupId === groupId && (periodId === null || e.periodId === periodId)
+  );
+}
+
+export function paymentsOf(
+  payments: Payment[],
+  groupId: string,
+  periodId: string | null
+): Payment[] {
+  return payments.filter(
+    (p) => p.groupId === groupId && (periodId === null || p.periodId === periodId)
   );
 }
 

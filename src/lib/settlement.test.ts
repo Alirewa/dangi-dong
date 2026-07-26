@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import type { Expense, ExpenseShare, Group, Person, RoundTo, SplitKind } from '@/types/dong';
+import type {
+  Expense,
+  ExpenseShare,
+  Group,
+  Payment,
+  Person,
+  RoundTo,
+  SplitKind,
+} from '@/types/dong';
 import { sum } from './money';
 import { minimizeTransfers, settle, splitExpense } from './settlement';
 
@@ -65,6 +73,21 @@ function expense(spec: ExpenseSpec): Expense {
     note: '',
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
+  };
+}
+
+function payment(from: string, to: string, amount: number): Payment {
+  return {
+    id: `pay-${from}-${to}-${amount}`,
+    groupId: 'g1',
+    periodId: null,
+    fromPersonId: from,
+    toPersonId: to,
+    amount,
+    date: '2026-01-02',
+    note: '',
+    createdAt: '2026-01-02T00:00:00.000Z',
+    updatedAt: '2026-01-02T00:00:00.000Z',
   };
 }
 
@@ -496,5 +519,135 @@ describe('settle — randomized invariants', () => {
       ).toBe(true);
       expect(result.transfers.every((t) => t.amount > 0)).toBe(true);
     }
+  });
+});
+
+// ── repayments ───────────────────────────────────────────────────────────────
+
+describe('repayments', () => {
+  const people = [person('a'), person('b'), person('c')];
+  const members = ['a', 'b', 'c'];
+
+  /** a fronts 90,000 for three people: b and c each owe a 30,000. */
+  const oneExpense = () => [
+    expense({
+      amount: 90000,
+      payer: 'a',
+      shares: [{ personId: 'a' }, { personId: 'b' }, { personId: 'c' }],
+    }),
+  ];
+
+  it('cancels a debt exactly when repaid in full', () => {
+    const result = settle({
+      group: group(members),
+      periodId: null,
+      people,
+      expenses: oneExpense(),
+      payments: [payment('b', 'a', 30000)],
+    });
+
+    const b = result.balances.find((x) => x.personId === 'b')!;
+    expect(b.repaid).toBe(30000);
+    expect(b.net).toBe(0);
+    // Only c still owes anything.
+    expect(result.transfers).toHaveLength(1);
+    expect(result.transfers[0]).toMatchObject({
+      fromPersonId: 'c',
+      toPersonId: 'a',
+      amount: 30000,
+    });
+  });
+
+  it('reduces a debt partially', () => {
+    const result = settle({
+      group: group(members),
+      periodId: null,
+      people,
+      expenses: oneExpense(),
+      payments: [payment('b', 'a', 10000)],
+    });
+
+    const b = result.balances.find((x) => x.personId === 'b')!;
+    expect(b.net).toBe(-20000);
+    const bToA = result.transfers.find((t) => t.fromPersonId === 'b');
+    expect(bToA?.amount).toBe(20000);
+  });
+
+  it('credits the receiver, so the creditor is owed less', () => {
+    const result = settle({
+      group: group(members),
+      periodId: null,
+      people,
+      expenses: oneExpense(),
+      payments: [payment('b', 'a', 30000)],
+    });
+
+    const a = result.balances.find((x) => x.personId === 'a')!;
+    expect(a.received).toBe(30000);
+    expect(a.net).toBe(30000); // was 60,000 before the repayment
+  });
+
+  it('keeps Σ net === 0 and the transfers reconciling', () => {
+    const result = settle({
+      group: group(members),
+      periodId: null,
+      people,
+      expenses: oneExpense(),
+      payments: [payment('b', 'a', 30000), payment('c', 'a', 12345)],
+    });
+    expect(result.checks.netSumZero).toBe(true);
+    expect(result.checks.transfersReconcile).toBe(true);
+    expect(sum(result.balances.map((b) => b.net))).toBe(0);
+  });
+
+  it('settles everyone when every debt is repaid', () => {
+    const result = settle({
+      group: group(members),
+      periodId: null,
+      people,
+      expenses: oneExpense(),
+      payments: [payment('b', 'a', 30000), payment('c', 'a', 30000)],
+    });
+    expect(result.transfers).toEqual([]);
+    expect(result.balances.every((b) => b.net === 0)).toBe(true);
+  });
+
+  it('handles an overpayment by flipping the direction', () => {
+    const result = settle({
+      group: group(members),
+      periodId: null,
+      people,
+      expenses: oneExpense(),
+      payments: [payment('b', 'a', 50000)],
+    });
+    const b = result.balances.find((x) => x.personId === 'b')!;
+    expect(b.net).toBe(20000); // overpaid by 20,000, so now a creditor
+    expect(result.checks.netSumZero).toBe(true);
+    expect(result.checks.transfersReconcile).toBe(true);
+  });
+
+  it('ignores zero and negative repayments', () => {
+    const result = settle({
+      group: group(members),
+      periodId: null,
+      people,
+      expenses: oneExpense(),
+      payments: [payment('b', 'a', 0), payment('c', 'a', -5000)],
+    });
+    expect(result.balances.find((x) => x.personId === 'b')!.net).toBe(-30000);
+    expect(result.checks.netSumZero).toBe(true);
+  });
+
+  it('reports the repaid total', () => {
+    const result = settle({
+      group: group(members),
+      periodId: null,
+      people,
+      expenses: oneExpense(),
+      payments: [payment('b', 'a', 30000), payment('c', 'a', 5000)],
+    });
+    expect(result.repaidTotal).toBe(35000);
+    // The expense total is untouched by repayments.
+    expect(result.total).toBe(90000);
   });
 });
