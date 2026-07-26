@@ -10,15 +10,7 @@ import { IconButton } from '@/components/ui/IconButton';
 import { cn } from '@/lib/utils';
 import { isActive, navItems } from './navItems';
 
-export function Header({
-  title,
-  back = false,
-  actions,
-}: {
-  title: string;
-  back?: boolean;
-  actions?: ReactNode;
-}) {
+export function Header({ back = false, actions }: { back?: boolean; actions?: ReactNode }) {
   const { t, isRtl } = useT();
   const router = useRouter();
   const pathname = usePathname();
@@ -37,16 +29,33 @@ export function Header({
       */}
       <div className="mx-auto flex min-h-16 max-w-5xl items-center gap-2 px-2 py-2 md:min-h-14">
         {/*
-          Mobile keeps only what belongs to this screen: back on one side, the
-          page's own actions on the other, title centred between them. Language
-          and theme live in Settings, so repeating them in a narrow header was
-          just clutter.
+          Page controls (back, edit) sit at the start of the bar — right in
+          Persian — and navigation at the far end. The page title is no longer
+          here at all: it lives in the body as a breadcrumb, which leaves the
+          bar to hold only controls.
         */}
-        {/*
-          Desktop navigation sits at the start of the bar (right in Persian),
-          with the page title at the far end. Language and theme are gone from
-          the header entirely — both live in Settings.
-        */}
+        <div className="flex shrink-0 items-center gap-1">
+          {back && (
+            <IconButton label={t.common.back} onClick={() => router.back()} className="md:hidden">
+              <BackIcon className="size-5" aria-hidden="true" />
+            </IconButton>
+          )}
+          {back && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.back()}
+              icon={<BackIcon className="size-4" aria-hidden="true" />}
+              className="hidden md:inline-flex"
+            >
+              {t.common.back}
+            </Button>
+          )}
+          {actions}
+        </div>
+
+        <span className="flex-1" aria-hidden="true" />
+
         <nav aria-label={t.nav.groups} className="hidden md:block">
           <ul className="flex items-center gap-1">
             {items.map((item) => {
@@ -73,33 +82,7 @@ export function Header({
           </ul>
         </nav>
 
-        {/* Mobile only: back on the leading edge. */}
-        <div className="flex min-w-11 shrink-0 items-center md:hidden">
-          {back && (
-            <IconButton label={t.common.back} onClick={() => router.back()}>
-              <BackIcon className="size-5" aria-hidden="true" />
-            </IconButton>
-          )}
-        </div>
-
-        <h1 className="order-none min-w-0 flex-1 truncate text-center text-base font-semibold md:order-last md:text-end">
-          {title}
-        </h1>
-
-        <div className="flex min-w-11 shrink-0 items-center justify-end gap-1 md:min-w-0">
-          {back && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.back()}
-              icon={<BackIcon className="size-4" aria-hidden="true" />}
-              className="hidden md:inline-flex"
-            >
-              {t.common.back}
-            </Button>
-          )}
-          {actions}
-        </div>
+        {/* Mobile navigation is the fixed bottom bar, so nothing more here. */}
       </div>
     </header>
   );

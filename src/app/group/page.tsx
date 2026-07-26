@@ -8,7 +8,7 @@ import { HydrationGate } from '@/components/layout/HydrationGate';
 import { GroupFormSheet } from '@/components/groups/GroupFormSheet';
 import { PeriodSwitcher } from '@/components/groups/PeriodSwitcher';
 import { ExpenseList } from '@/components/expenses/ExpenseList';
-import { Avatar } from '@/components/ui/Avatar';
+import { PersonAvatar } from '@/components/ui/PersonAvatar';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { Button } from '@/components/ui/Button';
 import { Count, Money } from '@/components/ui/Money';
@@ -68,6 +68,7 @@ function GroupScreen() {
   return (
     <AppShell
       title={group.name}
+      parent={{ label: t.nav.groups, href: '/' }}
       back
       actions={
         <Button
@@ -105,7 +106,12 @@ function GroupScreen() {
                 key={balance.personId}
                 className="flex items-center gap-3 rounded-lg border border-border bg-surface p-3"
               >
-                <Avatar name={balance.name} color={balance.color} size="sm" />
+                <PersonAvatar
+                  personId={balance.personId}
+                  name={balance.name}
+                  color={balance.color}
+                  size="sm"
+                />
                 <span className="min-w-0 flex-1">
                   <PersonName
                     personId={balance.personId}
@@ -178,9 +184,7 @@ function MembersTab({ groupId }: { groupId: string }) {
     .map((id) => people.find((p) => p.id === id))
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
 
-  const candidates = people.filter(
-    (p) => p.scope === 'global' && !group.memberIds.includes(p.id)
-  );
+  const candidates = people.filter((p) => p.scope === 'global' && !group.memberIds.includes(p.id));
 
   return (
     <div className="space-y-3">
@@ -192,7 +196,12 @@ function MembersTab({ groupId }: { groupId: string }) {
               key={person.id}
               className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-surface p-3"
             >
-              <Avatar name={person.name} color={person.color} size="md" />
+              <PersonAvatar
+                personId={person.id}
+                name={person.name}
+                color={person.color}
+                size="md"
+              />
 
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-2">
@@ -263,7 +272,12 @@ function MembersTab({ groupId }: { groupId: string }) {
                     }}
                     className="flex w-full min-h-11 items-center gap-3 rounded-lg px-2 text-start hover:bg-surface-2"
                   >
-                    <Avatar name={person.name} color={person.color} size="sm" />
+                    <PersonAvatar
+                      personId={person.id}
+                      name={person.name}
+                      color={person.color}
+                      size="sm"
+                    />
                     <span className="flex-1 truncate text-sm">{person.name}</span>
                     <Plus className="size-4 text-muted" aria-hidden="true" />
                   </button>

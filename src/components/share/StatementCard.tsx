@@ -84,15 +84,29 @@ export function StatementCard({
         padding: '32px 36px',
       }}
     >
-      <div style={{ borderBottom: `2px solid ${C.primary}`, paddingBottom: 12, marginBottom: 18 }}>
-        <div style={{ fontSize: 22, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div
+        style={{
+          borderBottom: `2px solid ${C.primary}`,
+          paddingBottom: 12,
+          marginBottom: 18,
+        }}
+      >
+        <div
+          style={{
+            fontSize: 22,
+            fontWeight: 700,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
           <StatementIcon icon={group.icon} />
           <span>{group.name}</span>
         </div>
         <div style={{ fontSize: 13, color: C.muted, marginTop: 2 }}>
           {t.appName}
-          {subtitle ? ` • ${subtitle}` : ''} • {t.settle.total}: {num(money(settlement.total), true)}{' '}
-          {currencyLabel(locale)}
+          {subtitle ? ` • ${subtitle}` : ''} • {t.settle.total}:{' '}
+          {num(money(settlement.total), true)} {currencyLabel(locale)}
         </div>
       </div>
 
@@ -101,16 +115,44 @@ export function StatementCard({
       <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 22 }}>
         <thead>
           <tr style={{ background: C.surface }}>
-            <th style={{ textAlign: 'start', padding: '6px 8px', fontSize: 12, color: C.muted }}>
+            <th
+              style={{
+                textAlign: 'start',
+                padding: '6px 8px',
+                fontSize: 12,
+                color: C.muted,
+              }}
+            >
               {t.expense.title}
             </th>
-            <th style={{ textAlign: 'start', padding: '6px 8px', fontSize: 12, color: C.muted }}>
+            <th
+              style={{
+                textAlign: 'start',
+                padding: '6px 8px',
+                fontSize: 12,
+                color: C.muted,
+              }}
+            >
               {t.expense.date}
             </th>
-            <th style={{ textAlign: 'start', padding: '6px 8px', fontSize: 12, color: C.muted }}>
+            <th
+              style={{
+                textAlign: 'start',
+                padding: '6px 8px',
+                fontSize: 12,
+                color: C.muted,
+              }}
+            >
               {t.expense.payer}
             </th>
-            <th style={{ textAlign: align, padding: '6px 8px', fontSize: 12, color: C.muted }}>
+            <th
+              style={{
+                textAlign: align,
+                padding: '6px 8px',
+                fontSize: 12,
+                color: C.muted,
+              }}
+            >
               {t.expense.amount}
             </th>
           </tr>
@@ -136,16 +178,44 @@ export function StatementCard({
       <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 22 }}>
         <thead>
           <tr style={{ background: C.surface }}>
-            <th style={{ textAlign: 'start', padding: '6px 8px', fontSize: 12, color: C.muted }}>
+            <th
+              style={{
+                textAlign: 'start',
+                padding: '6px 8px',
+                fontSize: 12,
+                color: C.muted,
+              }}
+            >
               {t.people.name}
             </th>
-            <th style={{ textAlign: align, padding: '6px 8px', fontSize: 12, color: C.muted }}>
+            <th
+              style={{
+                textAlign: align,
+                padding: '6px 8px',
+                fontSize: 12,
+                color: C.muted,
+              }}
+            >
               {t.settle.paid}
             </th>
-            <th style={{ textAlign: align, padding: '6px 8px', fontSize: 12, color: C.muted }}>
+            <th
+              style={{
+                textAlign: align,
+                padding: '6px 8px',
+                fontSize: 12,
+                color: C.muted,
+              }}
+            >
               {t.settle.owed}
             </th>
-            <th style={{ textAlign: align, padding: '6px 8px', fontSize: 12, color: C.muted }}>
+            <th
+              style={{
+                textAlign: align,
+                padding: '6px 8px',
+                fontSize: 12,
+                color: C.muted,
+              }}
+            >
               {t.settle.net}
             </th>
           </tr>

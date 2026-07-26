@@ -72,7 +72,10 @@ function expense(spec: ExpenseSpec): Expense {
 
 describe('splitExpense', () => {
   it('splits equally and sums to the total', () => {
-    const e = expense({ amount: 100000, shares: [{ personId: 'a' }, { personId: 'b' }, { personId: 'c' }] });
+    const e = expense({
+      amount: 100000,
+      shares: [{ personId: 'a' }, { personId: 'b' }, { personId: 'c' }],
+    });
     const owed = splitExpense(e);
     expect(sum(Object.values(owed))).toBe(100000);
   });
@@ -134,11 +137,7 @@ describe('splitExpense', () => {
     const e = expense({
       amount: 200000,
       splitKind: 'exact',
-      shares: [
-        { personId: 'ali', exactAmount: 45000 },
-        { personId: 'reza' },
-        { personId: 'sara' },
-      ],
+      shares: [{ personId: 'ali', exactAmount: 45000 }, { personId: 'reza' }, { personId: 'sara' }],
     });
     const owed = splitExpense(e);
     expect(owed.ali).toBe(45000);
@@ -197,14 +196,20 @@ describe('splitExpense', () => {
   });
 
   it('returns all zeros for a zero-amount expense', () => {
-    const e = expense({ amount: 0, shares: [{ personId: 'a' }, { personId: 'b' }] });
+    const e = expense({
+      amount: 0,
+      shares: [{ personId: 'a' }, { personId: 'b' }],
+    });
     expect(splitExpense(e)).toEqual({ a: 0, b: 0 });
   });
 
   it('returns all zeros when nobody is included', () => {
     const e = expense({
       amount: 50000,
-      shares: [{ personId: 'a', included: false }, { personId: 'b', included: false }],
+      shares: [
+        { personId: 'a', included: false },
+        { personId: 'b', included: false },
+      ],
     });
     expect(splitExpense(e)).toEqual({ a: 0, b: 0 });
   });
@@ -214,7 +219,12 @@ describe('splitExpense', () => {
 
 describe('minimizeTransfers', () => {
   it('produces no transfers when everyone is square', () => {
-    expect(minimizeTransfers([{ personId: 'a', net: 0 }, { personId: 'b', net: 0 }])).toEqual([]);
+    expect(
+      minimizeTransfers([
+        { personId: 'a', net: 0 },
+        { personId: 'b', net: 0 },
+      ])
+    ).toEqual([]);
   });
 
   it('routes a single-payer case to that payer', () => {
@@ -260,7 +270,11 @@ describe('settle', () => {
       periodId: null,
       people,
       expenses: [
-        expense({ amount: 90000, payer: 'a', shares: [{ personId: 'a' }, { personId: 'b' }, { personId: 'c' }] }),
+        expense({
+          amount: 90000,
+          payer: 'a',
+          shares: [{ personId: 'a' }, { personId: 'b' }, { personId: 'c' }],
+        }),
       ],
     });
     expect(result.total).toBe(90000);
@@ -317,8 +331,18 @@ describe('settle', () => {
       people,
       roundTo: 1000,
       expenses: [
-        expense({ id: 'e1', amount: 100000, payer: 'a', shares: [{ personId: 'a' }, { personId: 'b' }, { personId: 'c' }] }),
-        expense({ id: 'e2', amount: 37777, payer: 'b', shares: [{ personId: 'a' }, { personId: 'b' }, { personId: 'c' }] }),
+        expense({
+          id: 'e1',
+          amount: 100000,
+          payer: 'a',
+          shares: [{ personId: 'a' }, { personId: 'b' }, { personId: 'c' }],
+        }),
+        expense({
+          id: 'e2',
+          amount: 37777,
+          payer: 'b',
+          shares: [{ personId: 'a' }, { personId: 'b' }, { personId: 'c' }],
+        }),
       ],
     });
     expect(result.checks.sharesSumOk).toBe(true);
@@ -332,14 +356,23 @@ describe('settle', () => {
       periodId: null,
       people,
       expenses: [
-        expense({ amount: 90000, payer: 'a', shares: [{ personId: 'a' }, { personId: 'b' }, { personId: 'c' }] }),
+        expense({
+          amount: 90000,
+          payer: 'a',
+          shares: [{ personId: 'a' }, { personId: 'b' }, { personId: 'c' }],
+        }),
       ],
     });
     expect(result.treasurerId).toBe('c');
   });
 
   it('survives an empty group', () => {
-    const result = settle({ group: group([]), periodId: null, people: [], expenses: [] });
+    const result = settle({
+      group: group([]),
+      periodId: null,
+      people: [],
+      expenses: [],
+    });
     expect(result.total).toBe(0);
     expect(result.transfers).toEqual([]);
     expect(result.checks.netSumZero).toBe(true);
@@ -363,7 +396,12 @@ describe('settle', () => {
       people,
       roundTo: 1000 as RoundTo,
       expenses: [
-        expense({ id: 'e1', amount: 100000, payer: 'a', shares: [{ personId: 'a' }, { personId: 'b' }, { personId: 'c' }] }),
+        expense({
+          id: 'e1',
+          amount: 100000,
+          payer: 'a',
+          shares: [{ personId: 'a' }, { personId: 'b' }, { personId: 'c' }],
+        }),
       ],
     };
     expect(settle(input)).toEqual(settle(input));
@@ -384,7 +422,7 @@ function makeRandom(seed: number) {
 describe('settle — randomized invariants', () => {
   it('holds Σ shares === amount, Σ net === 0 and transfer reconciliation over 500 groups', () => {
     const rand = makeRandom(20260725);
-    const pick = <T,>(xs: readonly T[]): T => xs[Math.floor(rand() * xs.length)];
+    const pick = <T>(xs: readonly T[]): T => xs[Math.floor(rand() * xs.length)];
     const roundOptions: RoundTo[] = [1, 100, 500, 1000];
     const kinds: SplitKind[] = ['equal', 'weight', 'exact'];
 
@@ -446,8 +484,12 @@ describe('settle — randomized invariants', () => {
         strategy: rand() < 0.5 ? 'treasurer-first' : 'greedy',
       });
 
-      expect(result.checks.sharesSumOk, `case ${caseIndex}: shares must sum to the amount`).toBe(true);
-      expect(result.checks.netSumZero, `case ${caseIndex}: net balances must sum to zero`).toBe(true);
+      expect(result.checks.sharesSumOk, `case ${caseIndex}: shares must sum to the amount`).toBe(
+        true
+      );
+      expect(result.checks.netSumZero, `case ${caseIndex}: net balances must sum to zero`).toBe(
+        true
+      );
       expect(
         result.checks.transfersReconcile,
         `case ${caseIndex}: transfers must reconcile with net balances`

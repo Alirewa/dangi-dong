@@ -4,7 +4,7 @@ import { useT } from '@/hooks/useT';
 import { cn } from '@/lib/utils';
 import type { ExpensePayer, Person } from '@/types/dong';
 import { AmountInput } from '@/components/ui/AmountInput';
-import { Avatar } from '@/components/ui/Avatar';
+import { PersonAvatar } from '@/components/ui/PersonAvatar';
 import { Money } from '@/components/ui/Money';
 
 export function PayerPicker({
@@ -37,8 +37,7 @@ export function PayerPicker({
   const typedTotal = payers.reduce((a, p) => a + p.amount, 0);
   const mismatch = multi && typedTotal !== amount;
 
-  const amountFor = (personId: string) =>
-    payers.find((p) => p.personId === personId)?.amount ?? 0;
+  const amountFor = (personId: string) => payers.find((p) => p.personId === personId)?.amount ?? 0;
 
   const setAmountFor = (personId: string, value: number) => {
     const others = payers.filter((p) => p.personId !== personId);
@@ -80,7 +79,12 @@ export function PayerPicker({
                   : 'border-border bg-surface hover:bg-surface-2'
               )}
             >
-              <Avatar name={person.name} color={person.color} size="sm" />
+              <PersonAvatar
+                personId={person.id}
+                name={person.name}
+                color={person.color}
+                size="sm"
+              />
               {person.name}
             </button>
           ))}
@@ -90,7 +94,12 @@ export function PayerPicker({
           <ul className="space-y-2">
             {members.map((person) => (
               <li key={person.id} className="flex items-center gap-3">
-                <Avatar name={person.name} color={person.color} size="sm" />
+                <PersonAvatar
+                  personId={person.id}
+                  name={person.name}
+                  color={person.color}
+                  size="sm"
+                />
                 <span className="w-20 shrink-0 truncate text-sm">{person.name}</span>
                 <div className="flex-1">
                   <AmountInput

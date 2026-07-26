@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Archive, ArchiveRestore, Copy, Plus, Trash2, Wallet } from 'lucide-react';
+import { Archive, ArchiveRestore, Plus, Trash2, Wallet } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { HydrationGate } from '@/components/layout/HydrationGate';
 import { InstallPrompt } from '@/components/layout/InstallPrompt';
@@ -23,7 +23,7 @@ export default function HomePage() {
   const { t } = useT();
 
   return (
-    <AppShell title={t.home.title}>
+    <AppShell title={t.home.title} wide>
       <HydrationGate>
         <GroupsScreen />
       </HydrationGate>
@@ -41,7 +41,6 @@ function GroupsScreen() {
   const setActiveGroup = useDongStore((s) => s.setActiveGroup);
   const removeGroup = useDongStore((s) => s.removeGroup);
   const archiveGroup = useDongStore((s) => s.archiveGroup);
-  const duplicateGroup = useDongStore((s) => s.duplicateGroup);
   const pushToast = useDongStore((s) => s.pushToast);
 
   const [formOpen, setFormOpen] = useState(false);
@@ -82,7 +81,6 @@ function GroupsScreen() {
     router.push('/group/');
   };
 
-
   return (
     <div className="space-y-4 p-4">
       <InstallPrompt />
@@ -117,7 +115,9 @@ function GroupsScreen() {
         />
       ) : (
         <>
-          <ul className="space-y-3">
+          {/* Same shape as the people list: one card per row on a phone, a
+              grid once there is room. */}
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {visible.map((group, i) => {
               const stats = statsOf.get(group.id);
               return (
@@ -127,11 +127,11 @@ function GroupsScreen() {
                   // Capped so a long list never leaves the last rows visibly late.
                   style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}
                 >
-                  <div className="rounded-lg border border-border bg-surface transition-colors hover:bg-surface-2">
+                  <div className="flex h-full flex-col rounded-lg border border-border bg-surface transition-colors hover:bg-surface-2">
                     <button
                       type="button"
                       onClick={() => open(group)}
-                      className="flex w-full items-center gap-3 p-4 text-start"
+                      className="flex w-full flex-1 items-center gap-3 p-4 text-start"
                     >
                       <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary">
                         <GroupIcon icon={group.icon} className="size-6" />
@@ -167,15 +167,6 @@ function GroupsScreen() {
                     </button>
 
                     <div className="flex flex-wrap justify-end gap-1 border-t border-border px-2 py-1">
-                      <ActionButton
-                        icon={<Copy className="size-4" aria-hidden="true" />}
-                        onClick={() => {
-                          duplicateGroup(group.id);
-                          pushToast('success', t.toast.saved);
-                        }}
-                      >
-                        {t.home.duplicate}
-                      </ActionButton>
                       <ActionButton
                         icon={
                           group.archived ? (

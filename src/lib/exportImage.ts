@@ -65,6 +65,9 @@ export async function shareBlob(
 
 /** Filesystem-safe, keeping Persian letters (which are legal in filenames). */
 export function safeFilename(base: string, ext: string): string {
-  const cleaned = base.replace(/[\\/:*?"<>|]/g, '-').replace(/\s+/g, '-').slice(0, 60);
+  const cleaned = base
+    .replace(/[\\/:*?"<>|]/g, '-')
+    .replace(/\s+/g, '-')
+    .slice(0, 60);
   return `${cleaned || 'dong'}.${ext}`;
 }

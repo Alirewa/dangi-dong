@@ -60,13 +60,7 @@ export function defaultIconFor(mode: GroupMode): GroupIconKey {
   return mode === 'monthly' ? 'home' : 'utensils';
 }
 
-export function GroupIcon({
-  icon,
-  className,
-}: {
-  icon: GroupIconKey;
-  className?: string;
-}) {
+export function GroupIcon({ icon, className }: { icon: GroupIconKey; className?: string }) {
   const Icon = GROUP_ICONS[icon] ?? Home;
   return <Icon className={className} aria-hidden="true" />;
 }

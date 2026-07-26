@@ -60,7 +60,10 @@ function SettingsScreen() {
 
   const roundOptions = ROUND_OPTIONS.map((r) => ({
     value: String(r),
-    label: r === 1 ? t.settings.roundExact : fmt(t.settings.roundUnit, { unit: formatNumber(r, locale) }),
+    label:
+      r === 1
+        ? t.settings.roundExact
+        : fmt(t.settings.roundUnit, { unit: formatNumber(r, locale) }),
   }));
 
   const onExport = () => {
@@ -72,7 +75,9 @@ function SettingsScreen() {
       settings: store.settings,
       activeGroupId: null,
     });
-    const blob = new Blob([JSON.stringify(file, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(file, null, 2)], {
+      type: 'application/json',
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -150,7 +155,10 @@ function SettingsScreen() {
         <SegmentedControl
           value={settings.transferStrategy}
           options={[
-            { value: 'treasurer-first' as const, label: t.settings.strategyTreasurer },
+            {
+              value: 'treasurer-first' as const,
+              label: t.settings.strategyTreasurer,
+            },
             { value: 'greedy' as const, label: t.settings.strategyGreedy },
           ]}
           onChange={store.setTransferStrategy}

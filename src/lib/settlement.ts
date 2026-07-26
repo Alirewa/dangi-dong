@@ -1,10 +1,5 @@
 import type { Expense, Group, Person, RoundTo, TransferStrategy } from '@/types/dong';
-import type {
-  BreakdownLine,
-  PersonBalance,
-  SettlementResult,
-  Transfer,
-} from '@/types/settlement';
+import type { BreakdownLine, PersonBalance, SettlementResult, Transfer } from '@/types/settlement';
 import { allocate, quantize, sum } from './money';
 
 /**
@@ -102,7 +97,10 @@ export function computeBalances(
   people: Person[],
   memberIds: string[],
   opts: SplitOptions = {}
-): { balances: PersonBalance[]; perExpense: Record<string, Record<string, number>> } {
+): {
+  balances: PersonBalance[];
+  perExpense: Record<string, Record<string, number>>;
+} {
   const personById = new Map(people.map((p) => [p.id, p]));
 
   // Include every member, plus anyone referenced by an expense who has since
@@ -113,7 +111,10 @@ export function computeBalances(
     for (const s of e.shares) if (s.included) ids.add(s.personId);
   }
 
-  const acc = new Map<string, { paid: number; owed: number; count: number; lines: BreakdownLine[] }>();
+  const acc = new Map<
+    string,
+    { paid: number; owed: number; count: number; lines: BreakdownLine[] }
+  >();
   for (const id of ids) acc.set(id, { paid: 0, owed: 0, count: 0, lines: [] });
 
   const perExpense: Record<string, Record<string, number>> = {};
@@ -266,7 +267,9 @@ export function settle(input: SettleInput): SettlementResult {
   // second re-splits with the treasurer as the residual holder, so rounding
   // lands on the person who actually fronted the money rather than on whoever
   // happened to sort first.
-  const first = computeBalances(expenses, people, group.memberIds, { roundTo: 1 });
+  const first = computeBalances(expenses, people, group.memberIds, {
+    roundTo: 1,
+  });
   const treasurerId = pickTreasurer(first.balances, group.treasurerId, group.memberIds);
 
   const { balances, perExpense } = computeBalances(expenses, people, group.memberIds, {

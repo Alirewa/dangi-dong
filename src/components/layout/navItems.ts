@@ -12,9 +12,19 @@ export interface NavItem {
 /** Single source of truth so the mobile bar and the desktop header cannot drift. */
 export function navItems(t: Dict): NavItem[] {
   return [
-    { href: '/', label: t.nav.groups, icon: Wallet, match: ['/', '/group', '/settle'] },
+    {
+      href: '/',
+      label: t.nav.groups,
+      icon: Wallet,
+      match: ['/', '/group', '/settle'],
+    },
     { href: '/people/', label: t.nav.people, icon: Users, match: ['/people'] },
-    { href: '/settings/', label: t.nav.settings, icon: Settings, match: ['/settings'] },
+    {
+      href: '/settings/',
+      label: t.nav.settings,
+      icon: Settings,
+      match: ['/settings'],
+    },
   ];
 }
 

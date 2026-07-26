@@ -9,6 +9,7 @@ import { GroupIcon, defaultIconFor, toIconKey } from './groupIcons';
 import { todayIso } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { Avatar } from '@/components/ui/Avatar';
+import { PersonAvatar } from '@/components/ui/PersonAvatar';
 import { Button } from '@/components/ui/Button';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { DateField } from '@/components/ui/DateField';
@@ -46,8 +47,8 @@ function GroupForm({ onClose, editing }: { onClose: () => void; editing: Group |
 
   const [name, setName] = useState(() => editing?.name ?? '');
   const [mode, setMode] = useState<GroupMode>(() => editing?.mode ?? 'monthly');
-  const [icon, setIcon] = useState<GroupIconKey>(
-    () => toIconKey(editing?.icon, editing?.mode ?? 'monthly')
+  const [icon, setIcon] = useState<GroupIconKey>(() =>
+    toIconKey(editing?.icon, editing?.mode ?? 'monthly')
   );
   const [eventDate, setEventDate] = useState(() => editing?.eventDate ?? todayIso());
   const [memberIds, setMemberIds] = useState<string[]>(
@@ -110,9 +111,24 @@ function GroupForm({ onClose, editing }: { onClose: () => void; editing: Group |
     onClose();
   };
 
-  const modes: { value: GroupMode; label: string; desc: string; icon: GroupIconKey }[] = [
-    { value: 'monthly', label: t.home.monthly, desc: t.home.monthlyDesc, icon: 'home' },
-    { value: 'event', label: t.home.event, desc: t.home.eventDesc, icon: 'utensils' },
+  const modes: {
+    value: GroupMode;
+    label: string;
+    desc: string;
+    icon: GroupIconKey;
+  }[] = [
+    {
+      value: 'monthly',
+      label: t.home.monthly,
+      desc: t.home.monthlyDesc,
+      icon: 'home',
+    },
+    {
+      value: 'event',
+      label: t.home.event,
+      desc: t.home.eventDesc,
+      icon: 'utensils',
+    },
   ];
 
   return (
@@ -212,7 +228,7 @@ function GroupForm({ onClose, editing }: { onClose: () => void; editing: Group |
                         onChange={() => toggleMember(p.id)}
                         className="size-5 accent-[var(--primary)]"
                       />
-                      <Avatar name={p.name} color={p.color} size="sm" />
+                      <PersonAvatar personId={p.id} name={p.name} color={p.color} size="sm" />
                       <span className="flex-1 truncate text-sm">{p.name}</span>
                     </label>
                   </li>
@@ -274,7 +290,9 @@ function GroupForm({ onClose, editing }: { onClose: () => void; editing: Group |
               block
               icon={<Plus className="size-4" aria-hidden="true" />}
               onClick={() => {
-                const p = addPerson({ name: t.appName === 'دنگ‌بندی' ? 'من' : 'Me' });
+                const p = addPerson({
+                  name: t.appName === 'دنگ‌بندی' ? 'من' : 'Me',
+                });
                 setMemberIds((prev) => [...prev, p.id]);
               }}
             >

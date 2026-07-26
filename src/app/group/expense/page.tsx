@@ -103,7 +103,11 @@ function ExpenseForm({ group, editing }: { group: Group; editing: Expense | null
       (group.memberIds[0] ? [{ personId: group.memberIds[0], amount: 0 }] : [])
   );
   const [multiPayer, setMultiPayer] = useState(() => (editing?.payers.length ?? 0) > 1);
-  const [errors, setErrors] = useState<{ title?: string; amount?: string; included?: string }>({});
+  const [errors, setErrors] = useState<{
+    title?: string;
+    amount?: string;
+    included?: string;
+  }>({});
   const [pendingDelete, setPendingDelete] = useState(false);
 
   const titleRef = useRef<HTMLInputElement>(null);
@@ -133,8 +137,23 @@ function ExpenseForm({ group, editing }: { group: Group; editing: Expense | null
       createdAt: '',
       updatedAt: '',
     };
-    return splitExpense(draft, { roundTo, residualPersonId: payers[0]?.personId ?? null });
-  }, [editing?.id, group.id, title, category, amount, date, payers, splitKind, shares, note, roundTo]);
+    return splitExpense(draft, {
+      roundTo,
+      residualPersonId: payers[0]?.personId ?? null,
+    });
+  }, [
+    editing?.id,
+    group.id,
+    title,
+    category,
+    amount,
+    date,
+    payers,
+    splitKind,
+    shares,
+    note,
+    roundTo,
+  ]);
 
   const locked = Boolean(editing && period?.closed);
   const includedCount = shares.filter((s) => s.included).length;
@@ -165,7 +184,11 @@ function ExpenseForm({ group, editing }: { group: Group; editing: Expense | null
       // button did nothing. Surface it as a toast AND scroll to the field.
       const message = next.title ?? next.amount ?? next.included ?? '';
       pushToast('error', message);
-      const target = next.title ? titleRef.current : next.amount ? amountRef.current : sharesRef.current;
+      const target = next.title
+        ? titleRef.current
+        : next.amount
+          ? amountRef.current
+          : sharesRef.current;
       target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       if (next.title || next.amount) (target as HTMLInputElement | null)?.focus?.();
       return;
@@ -212,7 +235,12 @@ function ExpenseForm({ group, editing }: { group: Group; editing: Expense | null
         : t.expense.exactHint;
 
   return (
-    <AppShell title={editing ? t.expense.editTitle : t.expense.newTitle} back hideNav>
+    <AppShell
+      title={editing ? t.expense.editTitle : t.expense.newTitle}
+      parent={{ label: group.name, href: '/group/' }}
+      back
+      hideNav
+    >
       <div className="space-y-6 p-4">
         {locked && (
           <p className="rounded-lg bg-warning-soft px-3 py-2 text-xs leading-relaxed text-warning">

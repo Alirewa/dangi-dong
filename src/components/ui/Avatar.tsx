@@ -9,11 +9,14 @@ export function Avatar({
   name,
   color,
   size = 'md',
+  self = false,
   className,
 }: {
   name: string;
   color: string;
   size?: 'sm' | 'md' | 'lg';
+  /** the app owner — gets a ring so they can find themselves in a list */
+  self?: boolean;
   className?: string;
 }) {
   const sizes = {
@@ -29,6 +32,9 @@ export function Avatar({
       className={cn(
         'inline-flex shrink-0 items-center justify-center rounded-full font-semibold text-white',
         sizes[size],
+        // A ring in the brand colour, offset against the page so it reads as a
+        // highlight rather than a border on the circle itself.
+        self && 'ring-2 ring-primary ring-offset-2 ring-offset-surface',
         className
       )}
     >

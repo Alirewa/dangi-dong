@@ -182,11 +182,26 @@ html input[type='radio'] {
   outline-offset: 2px;
 }
 
-/* Kill the iOS tap highlight; our own :active states replace it. */
+/*
+ * Kill the iOS tap highlight; our own :active states replace it.
+ * Tailwind v4 no longer sets `cursor: pointer` on buttons, so anything
+ * clickable has to ask for it explicitly.
+ */
 button,
 a,
 [role='button'] {
   -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']),
+label[for],
+summary {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
 }
 
 /*

@@ -43,7 +43,8 @@ export function useActivePeriod(group: Group | null): {
   );
 
   const period = useMemo(
-    () => periods.find((p) => p.id === group?.activePeriodId) ?? periods[periods.length - 1] ?? null,
+    () =>
+      periods.find((p) => p.id === group?.activePeriodId) ?? periods[periods.length - 1] ?? null,
     [periods, group?.activePeriodId]
   );
 

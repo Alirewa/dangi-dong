@@ -42,7 +42,7 @@ export const en: Dict = {
       'What should we call you? Your name appears in groups and statements, and you can change it any time.',
     nameLabel: 'Your name',
     namePlaceholder: 'e.g. Ali',
-    nameHint: 'Leave it blank and we will use “Me”.',
+    nameHint: 'Leave it blank and we will use “You”.',
     submit: 'Get started',
   },
 
@@ -63,7 +63,8 @@ export const en: Dict = {
   home: {
     title: 'Groups',
     emptyTitle: 'No groups yet',
-    emptyDesc: 'Create a group to get started. Use a monthly group for housemates, or an event group for a restaurant or trip.',
+    emptyDesc:
+      'Create a group to get started. Use a monthly group for housemates, or an event group for a restaurant or trip.',
     newGroup: 'New group',
     firstGroup: 'Create your first group',
     monthly: 'Monthly',
@@ -76,11 +77,11 @@ export const en: Dict = {
     archived: 'Archived',
     tabActive: 'Active groups',
     tabArchived: 'Archived',
-    duplicate: 'Duplicate (members only)',
     archive: 'Archive',
     unarchive: 'Unarchive',
     deleteGroupTitle: 'Delete this group?',
-    deleteGroupDesc: 'All of its expenses and temporary members will be deleted too. This cannot be undone.',
+    deleteGroupDesc:
+      'All of its expenses and temporary members will be deleted too. This cannot be undone.',
   },
 
   groupForm: {
@@ -157,7 +158,8 @@ export const en: Dict = {
     exact: 'Exact amounts',
     equalHint: 'Split evenly between everyone who is ticked.',
     weightHint: 'Give a higher multiplier to whoever consumed more. ×2 means twice a normal share.',
-    exactHint: 'Type the amounts you know. Blank boxes split whatever remains equally between them.',
+    exactHint:
+      'Type the amounts you know. Blank boxes split whatever remains equally between them.',
     included: 'Included',
     remaining: 'Remaining',
     overBudget: 'More than the total',
@@ -186,7 +188,8 @@ export const en: Dict = {
   people: {
     title: 'My people',
     emptyTitle: 'Nobody saved yet',
-    emptyDesc: 'Save the people you regularly share costs with, so you can add them to any group in one tap.',
+    emptyDesc:
+      'Save the people you regularly share costs with, so you can add them to any group in one tap.',
     addPerson: 'Add person',
     newTitle: 'New person',
     editTitle: 'Edit person',
@@ -194,7 +197,8 @@ export const en: Dict = {
     namePlaceholder: 'e.g. Reza',
     note: 'Note',
     payoutTitle: 'Card details',
-    payoutHint: 'Shown when this person is the main payer and everyone else transfers money to them.',
+    payoutHint:
+      'Shown when this person is the main payer and everyone else transfers money to them.',
     holderName: 'Account holder',
     holderNameHint: 'Leave blank to use this person’s name',
     cardNumber: 'Card number',
@@ -251,7 +255,8 @@ export const en: Dict = {
     themeDark: 'Dark',
     themeSystem: 'System',
     rounding: 'Rounding',
-    roundingHint: 'Each share is rounded to this unit. The small difference lands on the main payer.',
+    roundingHint:
+      'Each share is rounded to this unit. The small difference lands on the main payer.',
     roundExact: 'Exact (1 Toman)',
     roundUnit: 'Nearest {unit} Toman',
     strategy: 'Settlement style',
@@ -259,7 +264,8 @@ export const en: Dict = {
     strategyGreedy: 'Fewest transfers',
     strategyHint: 'The first is simpler to follow; the second sometimes saves one transfer.',
     backup: 'Backup',
-    backupHint: 'All data lives in this browser only. If browser storage is cleared, nothing can be recovered without a backup file.',
+    backupHint:
+      'All data lives in this browser only. If browser storage is cleared, nothing can be recovered without a backup file.',
     backupWarnCard: 'The backup file includes any saved card numbers.',
     exportJson: 'Download backup',
     importJson: 'Restore from file',
@@ -271,11 +277,13 @@ export const en: Dict = {
     importDone: 'Restore complete',
     lastBackup: 'Last backup: {date}',
     neverBackedUp: 'You have never backed up',
-    backupReminder: 'It has been a while since your last backup. Download one so you do not lose your data.',
+    backupReminder:
+      'It has been a while since your last backup. Download one so you do not lose your data.',
     install: 'Install app',
     installHint: 'Installing makes the app work offline and keeps your data safer.',
     clearCache: 'Clear cache and reload',
-    clearCacheHint: 'Use this if the app will not update or fails to load. Your data is not deleted.',
+    clearCacheHint:
+      'Use this if the app will not update or fails to load. Your data is not deleted.',
     reset: 'Erase all data',
     resetTitle: 'Erase all data?',
     resetDesc: 'Every group, person and expense is deleted permanently. Download a backup first.',

@@ -4,7 +4,7 @@ import { useT } from '@/hooks/useT';
 import { cn } from '@/lib/utils';
 import type { ExpenseShare, Person, SplitKind } from '@/types/dong';
 import { AmountInput } from '@/components/ui/AmountInput';
-import { Avatar } from '@/components/ui/Avatar';
+import { PersonAvatar } from '@/components/ui/PersonAvatar';
 import { Money } from '@/components/ui/Money';
 import { PersonName } from '@/components/ui/PersonName';
 import { Stepper } from '@/components/ui/Stepper';
@@ -61,7 +61,12 @@ export function ShareEditor({
                 className="size-5 shrink-0 accent-[var(--primary)]"
               />
 
-              <Avatar name={person.name} color={person.color} size="sm" />
+              <PersonAvatar
+                personId={person.id}
+                name={person.name}
+                color={person.color}
+                size="sm"
+              />
 
               <PersonName
                 personId={person.id}

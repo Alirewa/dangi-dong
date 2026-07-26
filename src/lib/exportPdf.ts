@@ -23,7 +23,12 @@ export async function exportStatementPdf(filename: string, dir: 'rtl' | 'ltr'): 
     dir,
   });
 
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+    compress: true,
+  });
 
   // How many source pixels correspond to one A4 page at this width.
   const pxPerMm = canvas.width / A4_WIDTH_MM;

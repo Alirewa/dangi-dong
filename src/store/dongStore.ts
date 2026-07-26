@@ -94,7 +94,6 @@ interface DongStore extends PersistedShape {
   }) => Group;
   updateGroup: (id: string, data: Partial<Omit<Group, 'id' | 'createdAt' | 'mode'>>) => void;
   removeGroup: (id: string) => void;
-  duplicateGroup: (id: string) => Group | null;
   archiveGroup: (id: string, v: boolean) => void;
   setActiveGroup: (id: string | null) => void;
   addMember: (groupId: string, personId: string) => void;
@@ -198,15 +197,20 @@ export const useDongStore = create<DongStore>()(
         const state = get();
         if (state.settings.onboarded) return;
 
-        // Dismissing the prompt still needs an owner, so fall back to the
-        // locale default rather than leaving the app without a "you".
-        const finalName = name?.trim() || (state.settings.locale === 'fa' ? 'من' : 'Me');
+        // Dismissing the prompt still needs an owner. The fallback is "you"
+        // rather than "me": every other screen refers to this person in the
+        // second person, and "من" read as a placeholder nobody had chosen.
+        const finalName = name?.trim() || (state.settings.locale === 'fa' ? 'شما' : 'You');
         const existing = state.people.find((p) => p.scope === 'global');
 
         if (existing) {
           set((s) => ({
             people: s.people.map((p) => (p.id === existing.id ? { ...p, name: finalName } : p)),
-            settings: { ...s.settings, selfPersonId: existing.id, onboarded: true },
+            settings: {
+              ...s.settings,
+              selfPersonId: existing.id,
+              onboarded: true,
+            },
           }));
           return;
         }
@@ -236,17 +240,24 @@ export const useDongStore = create<DongStore>()(
       setTransferStrategy: (transferStrategy) =>
         set((s) => ({ settings: { ...s.settings, transferStrategy } })),
       dismissInstallBanner: () =>
-        set((s) => ({ settings: { ...s.settings, installBannerDismissedAt: nowIso() } })),
+        set((s) => ({
+          settings: { ...s.settings, installBannerDismissedAt: nowIso() },
+        })),
       addUsageSeconds: (seconds) =>
         set((s) => ({
-          settings: { ...s.settings, usageSeconds: (s.settings.usageSeconds ?? 0) + seconds },
+          settings: {
+            ...s.settings,
+            usageSeconds: (s.settings.usageSeconds ?? 0) + seconds,
+          },
         })),
 
       setStarPrompt: (starPrompt) => set((s) => ({ settings: { ...s.settings, starPrompt } })),
 
       markBackedUp: () => set((s) => ({ settings: { ...s.settings, lastBackupAt: nowIso() } })),
       markStoragePersistAsked: () =>
-        set((s) => ({ settings: { ...s.settings, storagePersistAsked: true } })),
+        set((s) => ({
+          settings: { ...s.settings, storagePersistAsked: true },
+        })),
 
       // ── people ─────────────────────────────────────────────────────────────
       addPerson: ({ name, scope = 'global', groupId = null }) => {
@@ -273,9 +284,7 @@ export const useDongStore = create<DongStore>()(
         set((s) => ({
           people: s.people.filter((p) => p.id !== id),
           settings:
-            s.settings.selfPersonId === id
-              ? { ...s.settings, selfPersonId: null }
-              : s.settings,
+            s.settings.selfPersonId === id ? { ...s.settings, selfPersonId: null } : s.settings,
           groups: s.groups.map((g) =>
             g.memberIds.includes(id)
               ? touch({
@@ -343,42 +352,6 @@ export const useDongStore = create<DongStore>()(
           activeGroupId: s.activeGroupId === id ? null : s.activeGroupId,
         })),
 
-      duplicateGroup: (id) => {
-        const src = get().groups.find((g) => g.id === id);
-        if (!src) return null;
-        const newId = uid();
-        // Ad-hoc members must be cloned, not shared, or deleting one group
-        // would delete people out from under the other.
-        const adHoc = get().people.filter((p) => p.scope === 'group' && p.groupId === id);
-        const idMap = new Map(adHoc.map((p) => [p.id, uid()]));
-        const clones: Person[] = adHoc.map((p) => ({
-          ...p,
-          id: idMap.get(p.id)!,
-          groupId: newId,
-          createdAt: nowIso(),
-        }));
-        const group: Group = {
-          ...src,
-          id: newId,
-          // Numeric suffix rather than a word: the store has no access to the
-          // dictionary, and a hardcoded Persian "کپی" leaked into English mode.
-          name: `${src.name} (${get().groups.filter((g) => g.name.startsWith(src.name)).length + 1})`,
-          memberIds: src.memberIds.map((m) => idMap.get(m) ?? m),
-          treasurerId: src.treasurerId ? (idMap.get(src.treasurerId) ?? src.treasurerId) : null,
-          activePeriodId: null,
-          eventDate: src.mode === 'event' ? todayIso() : null,
-          createdAt: nowIso(),
-          updatedAt: nowIso(),
-        };
-        set((s) => ({
-          groups: [...s.groups, group],
-          people: [...s.people, ...clones],
-          activeGroupId: group.id,
-        }));
-        if (group.mode === 'monthly') get().ensurePeriod(group.id);
-        return group;
-      },
-
       archiveGroup: (id, v) =>
         set((s) => ({
           groups: s.groups.map((g) => (g.id === id ? touch({ ...g, archived: v }) : g)),
@@ -394,9 +367,7 @@ export const useDongStore = create<DongStore>()(
           return {
             groups: s.groups.map((x) => (x.id === groupId ? touch({ ...x, memberIds }) : x)),
             expenses: s.expenses.map((e) =>
-              e.groupId === groupId
-                ? { ...e, shares: reconcileShares(e.shares, memberIds) }
-                : e
+              e.groupId === groupId ? { ...e, shares: reconcileShares(e.shares, memberIds) } : e
             ),
           };
         }),
@@ -526,7 +497,10 @@ export const useDongStore = create<DongStore>()(
           periods: s.periods.filter((p) => p.id !== periodId),
           groups: s.groups.map((g) =>
             g.activePeriodId === periodId
-              ? touch({ ...g, activePeriodId: siblings[siblings.length - 1]?.id ?? null })
+              ? touch({
+                  ...g,
+                  activePeriodId: siblings[siblings.length - 1]?.id ?? null,
+                })
               : g
           ),
         }));
@@ -595,8 +569,7 @@ export const useDongStore = create<DongStore>()(
           ),
         })),
 
-      removeExpense: (id) =>
-        set((s) => ({ expenses: s.expenses.filter((e) => e.id !== id) })),
+      removeExpense: (id) => set((s) => ({ expenses: s.expenses.filter((e) => e.id !== id) })),
 
       duplicateExpense: (id) => {
         const src = get().expenses.find((e) => e.id === id);
@@ -639,7 +612,10 @@ export const useDongStore = create<DongStore>()(
         set((s) => ({
           expenses: s.expenses.map((e) =>
             e.id === expenseId
-              ? touch({ ...e, payers: [{ personId, amount: Math.round(e.amount) }] })
+              ? touch({
+                  ...e,
+                  payers: [{ personId, amount: Math.round(e.amount) }],
+                })
               : e
           ),
         })),
@@ -663,7 +639,10 @@ export const useDongStore = create<DongStore>()(
       replaceAll: (data) =>
         set({
           people: data.people,
-          groups: data.groups.map((g) => ({ ...g, icon: toIconKey(g.icon, g.mode) })),
+          groups: data.groups.map((g) => ({
+            ...g,
+            icon: toIconKey(g.icon, g.mode),
+          })),
           periods: data.periods,
           expenses: data.expenses,
           settings: { ...defaultSettings, ...data.settings },
@@ -705,7 +684,10 @@ export const useDongStore = create<DongStore>()(
         if (from < 2) {
           state.groups = (state.groups ?? []).map((g) => {
             const legacy = g as Group & { emoji?: string };
-            const next: Group = { ...g, icon: toIconKey(legacy.icon ?? legacy.emoji, g.mode) };
+            const next: Group = {
+              ...g,
+              icon: toIconKey(legacy.icon ?? legacy.emoji, g.mode),
+            };
             delete (next as Group & { emoji?: string }).emoji;
             return next;
           });
@@ -714,6 +696,8 @@ export const useDongStore = create<DongStore>()(
         if (from < 3) {
           const people = state.people ?? [];
           const seeded = people.find((p) => p.name === 'من' || p.name === 'Me');
+          // Rename the old placeholder in place; "من" is no longer used anywhere.
+          if (seeded) seeded.name = seeded.name === 'Me' ? 'You' : 'شما';
           const firstGlobal = people.find((p) => p.scope === 'global');
           state.settings = {
             ...defaultSettings,
@@ -775,8 +759,6 @@ export function periodsOf(periods: Period[], groupId: string): Period[] {
   return periods
     .filter((p) => p.groupId === groupId)
     .sort((a, b) =>
-      monthKey({ jy: a.jYear, jm: a.jMonth }).localeCompare(
-        monthKey({ jy: b.jYear, jm: b.jMonth })
-      )
+      monthKey({ jy: a.jYear, jm: a.jMonth }).localeCompare(monthKey({ jy: b.jYear, jm: b.jMonth }))
     );
 }

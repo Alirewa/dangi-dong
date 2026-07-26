@@ -40,8 +40,7 @@ export function StarPrompt() {
   }, [hydrated, starPrompt, addUsageSeconds]);
 
   const threshold = starPrompt === 'later' ? SECOND_ASK_SECONDS : FIRST_ASK_SECONDS;
-  const open =
-    hydrated && onboarded && starPrompt !== 'done' && (usageSeconds ?? 0) >= threshold;
+  const open = hydrated && onboarded && starPrompt !== 'done' && (usageSeconds ?? 0) >= threshold;
 
   const star = () => {
     window.open(REPO_URL, '_blank', 'noopener,noreferrer');
@@ -58,11 +57,7 @@ export function StarPrompt() {
           <Button variant="secondary" block onClick={() => setStarPrompt('later')}>
             {t.star.later}
           </Button>
-          <Button
-            block
-            icon={<Star className="size-4" aria-hidden="true" />}
-            onClick={star}
-          >
+          <Button block icon={<Star className="size-4" aria-hidden="true" />} onClick={star}>
             {t.star.confirm}
           </Button>
         </div>

@@ -14,7 +14,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { HydrationGate } from '@/components/layout/HydrationGate';
 import { ShareCard } from '@/components/share/ShareCard';
 import { StatementCard } from '@/components/share/StatementCard';
-import { Avatar } from '@/components/ui/Avatar';
+import { PersonAvatar } from '@/components/ui/PersonAvatar';
 import { Button } from '@/components/ui/Button';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -89,7 +89,7 @@ function SettleScreen() {
 
   if (expenses.length === 0) {
     return (
-      <AppShell title={t.settle.title} back>
+      <AppShell title={t.settle.title} parent={{ label: group.name, href: '/group/' }} back>
         <EmptyState icon={<Calculator className="size-12" />} title={t.settle.nothingToSettle} />
       </AppShell>
     );
@@ -124,7 +124,14 @@ function SettleScreen() {
   const onShare = () =>
     withBusy('share', async () => {
       const blob = warmBlob ?? (await rebuild());
-      const text = buildSummaryText({ group, period, people, settlement, locale, t });
+      const text = buildSummaryText({
+        group,
+        period,
+        people,
+        settlement,
+        locale,
+        t,
+      });
       const shared = await shareBlob(blob, safeFilename(baseName, 'png'), group.name, text);
       if (!shared) {
         downloadBlob(blob, safeFilename(baseName, 'png'));
@@ -133,7 +140,14 @@ function SettleScreen() {
     });
 
   const onCopyText = async () => {
-    const text = buildSummaryText({ group, period, people, settlement, locale, t });
+    const text = buildSummaryText({
+      group,
+      period,
+      people,
+      settlement,
+      locale,
+      t,
+    });
     const ok = await copyText(text);
     pushToast(ok ? 'success' : 'error', ok ? t.toast.copiedText : t.toast.copyFailed);
   };
@@ -144,7 +158,7 @@ function SettleScreen() {
     });
 
   return (
-    <AppShell title={t.settle.title} back>
+    <AppShell title={t.settle.title} parent={{ label: group.name, href: '/group/' }} back>
       <div className="space-y-4 p-4">
         {/* Dev-only invariant strip. If this ever appears in the wild, the
             settlement is not trustworthy and the numbers must not be shared. */}
@@ -247,7 +261,7 @@ function SettleScreen() {
                     onClick={() => setExpanded(open ? null : b.personId)}
                     className="flex w-full items-center gap-3 p-3 text-start"
                   >
-                    <Avatar name={b.name} color={b.color} size="md" />
+                    <PersonAvatar personId={b.personId} name={b.name} color={b.color} size="md" />
                     <span className="min-w-0 flex-1">
                       <PersonName
                         personId={b.personId}
@@ -255,8 +269,7 @@ function SettleScreen() {
                         className="block text-sm font-medium"
                       />
                       <span className="block text-xs text-muted">
-                        <Count value={b.expenseCount} /> {t.settle.itemsIncluded} •{' '}
-                        {t.settle.paid}{' '}
+                        <Count value={b.expenseCount} /> {t.settle.itemsIncluded} • {t.settle.paid}{' '}
                         <Money value={b.paid} />
                       </span>
                     </span>

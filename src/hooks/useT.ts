@@ -13,5 +13,10 @@ export interface Translation {
 
 export function useT(): Translation {
   const locale = useDongStore((s) => s.settings.locale);
-  return { t: getDict(locale), locale, dir: dirOf(locale), isRtl: locale === 'fa' };
+  return {
+    t: getDict(locale),
+    locale,
+    dir: dirOf(locale),
+    isRtl: locale === 'fa',
+  };
 }

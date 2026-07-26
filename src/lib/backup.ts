@@ -9,8 +9,7 @@ export interface BackupFile {
 }
 
 export type ParseResult =
-  | { ok: true; data: PersistedShape }
-  | { ok: false; error: 'NOT_JSON' | 'WRONG_APP' | 'BAD_SHAPE' };
+  { ok: true; data: PersistedShape } | { ok: false; error: 'NOT_JSON' | 'WRONG_APP' | 'BAD_SHAPE' };
 
 /**
  * Hand-written type guards rather than zod.
@@ -62,7 +61,10 @@ export function parseBackup(text: string): ParseResult {
       groups: groups as unknown as PersistedShape['groups'],
       periods: periods as unknown as PersistedShape['periods'],
       expenses: expenses as unknown as PersistedShape['expenses'],
-      settings: { ...defaultSettings, ...(data.settings as object | undefined) },
+      settings: {
+        ...defaultSettings,
+        ...(data.settings as object | undefined),
+      },
       activeGroupId: null,
     },
   };

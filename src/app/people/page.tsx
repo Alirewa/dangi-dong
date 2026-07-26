@@ -5,7 +5,7 @@ import { CreditCard, Pencil, Trash2, UserPlus, Users } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { HydrationGate } from '@/components/layout/HydrationGate';
 import { PayoutForm } from '@/components/people/PayoutForm';
-import { Avatar } from '@/components/ui/Avatar';
+import { PersonAvatar } from '@/components/ui/PersonAvatar';
 import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { ActionButton } from '@/components/ui/ActionButton';
@@ -72,7 +72,12 @@ function PeopleScreen() {
                   {/* Identity on one row, actions on their own — three buttons
                       wrapped mid-row on a phone and broke the card. */}
                   <div className="flex items-center gap-3">
-                    <Avatar name={person.name} color={person.color} size="md" />
+                    <PersonAvatar
+                      personId={person.id}
+                      name={person.name}
+                      color={person.color}
+                      size="md"
+                    />
                     <span className="min-w-0 flex-1">
                       <PersonName
                         personId={person.id}
@@ -155,7 +160,9 @@ function PersonSheet({ person, onClose }: { person: Person | null; onClose: () =
 
   const [name, setName] = useState(() => person?.name ?? '');
   const [note, setNote] = useState(() => person?.note ?? '');
-  const [payout, setPayout] = useState<PayoutInfo>(() => person?.payout ?? { ...defaultPayoutInfo });
+  const [payout, setPayout] = useState<PayoutInfo>(
+    () => person?.payout ?? { ...defaultPayoutInfo }
+  );
   const [showPayout, setShowPayout] = useState(() => Boolean(person?.payout?.cardNumber));
   const [error, setError] = useState<string | null>(null);
 

@@ -1,10 +1,18 @@
 import type { ReactNode } from 'react';
+import Link from 'next/link';
+import { ChevronLeft } from 'lucide-react';
 import { Header } from './Header';
 import { BottomNav } from './BottomNav';
 import { Footer } from './Footer';
 
+export interface Crumb {
+  label: string;
+  href: string;
+}
+
 export function AppShell({
   title,
+  parent,
   back,
   actions,
   children,
@@ -12,6 +20,8 @@ export function AppShell({
   wide = false,
 }: {
   title: string;
+  /** rendered before the title as a breadcrumb link */
+  parent?: Crumb;
   back?: boolean;
   actions?: ReactNode;
   children: ReactNode;
@@ -21,7 +31,7 @@ export function AppShell({
 }) {
   return (
     <div className="min-h-dvh">
-      <Header title={title} back={back} actions={actions} />
+      <Header back={back} actions={actions} />
 
       {/*
         Bottom padding reserves room for the fixed footer, plus the fixed mobile
@@ -36,6 +46,27 @@ export function AppShell({
             : 'pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-[calc(3rem+env(safe-area-inset-bottom))]',
         ].join(' ')}
       >
+        {/*
+          The page title lives here rather than in the header bar, so the bar
+          holds only controls and the title can be as long as it needs to be
+          without truncating.
+        */}
+        <div className="px-4 pt-4">
+          {parent && (
+            <nav
+              aria-label="breadcrumb"
+              className="mb-1 flex items-center gap-1 text-xs text-muted"
+            >
+              <Link href={parent.href} className="transition-colors hover:text-primary">
+                {parent.label}
+              </Link>
+              {/* rtl:rotate flips the chevron to point along the reading direction */}
+              <ChevronLeft className="size-3.5 rtl:rotate-180" aria-hidden="true" />
+            </nav>
+          )}
+          <h1 className="text-xl font-bold">{title}</h1>
+        </div>
+
         {children}
       </main>
 
