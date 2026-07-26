@@ -237,7 +237,10 @@ function ExpenseForm({ group, editing }: { group: Group; editing: Expense | null
   return (
     <AppShell
       title={editing ? t.expense.editTitle : t.expense.newTitle}
-      parent={{ label: group.name, href: '/group/' }}
+      parents={[
+        { label: t.nav.groups, href: '/' },
+        { label: group.name, href: '/group/' },
+      ]}
       back
       hideNav
     >

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { HandCoins, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeftRight, HandCoins, Plus, Trash2 } from 'lucide-react';
 import { useT } from '@/hooks/useT';
 import { flowArrow, formatDateShort } from '@/lib/format';
 import { paymentsOf, useDongStore } from '@/store/dongStore';
@@ -11,6 +11,7 @@ import { ActionButton } from '@/components/ui/ActionButton';
 import { AmountInput } from '@/components/ui/AmountInput';
 import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { IconButton } from '@/components/ui/IconButton';
 import { DateField } from '@/components/ui/DateField';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Money } from '@/components/ui/Money';
@@ -152,8 +153,9 @@ export function PaymentsTab({ group, readOnly }: { group: Group; readOnly: boole
 }
 
 function PaymentForm({ group, onClose }: { group: Group; onClose: () => void }) {
-  const { t } = useT();
+  const { t, dir } = useT();
   const people = useDongStore((s) => s.people);
+  const selfPersonId = useDongStore((s) => s.settings.selfPersonId);
   const addPayment = useDongStore((s) => s.addPayment);
   const pushToast = useDongStore((s) => s.pushToast);
 
@@ -161,10 +163,16 @@ function PaymentForm({ group, onClose }: { group: Group; onClose: () => void }) 
     .map((id) => people.find((p) => p.id === id))
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
 
-  const options = members.map((p) => ({ value: p.id, label: p.name }));
+  /**
+   * One side is almost always the person holding the phone, so it is fixed to
+   * them and only the counterparty is picked. `direction` swaps which side they
+   * are on, which is the difference between paying someone back and being paid.
+   */
+  const self = members.find((p) => p.id === selfPersonId) ?? members[0] ?? null;
+  const others = members.filter((p) => p.id !== self?.id);
 
-  const [fromPersonId, setFrom] = useState(() => members[0]?.id ?? '');
-  const [toPersonId, setTo] = useState(() => members[1]?.id ?? members[0]?.id ?? '');
+  const [direction, setDirection] = useState<'out' | 'in'>('out');
+  const [otherId, setOtherId] = useState(() => others[0]?.id ?? '');
   const [amount, setAmount] = useState(0);
   // todayIso() is local; toISOString() is UTC and lands on the wrong day for
   // part of every evening in Tehran.
@@ -172,12 +180,17 @@ function PaymentForm({ group, onClose }: { group: Group; onClose: () => void }) 
   const [note, setNote] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  const options = others.map((p) => ({ value: p.id, label: p.name }));
+
+  const fromPersonId = direction === 'out' ? (self?.id ?? '') : otherId;
+  const toPersonId = direction === 'out' ? otherId : (self?.id ?? '');
+
   const submit = () => {
     if (amount <= 0) {
       setError(t.payment.needAmount);
       return;
     }
-    if (fromPersonId === toPersonId) {
+    if (!fromPersonId || !toPersonId || fromPersonId === toPersonId) {
       setError(t.payment.samePerson);
       return;
     }
@@ -185,6 +198,34 @@ function PaymentForm({ group, onClose }: { group: Group; onClose: () => void }) 
     pushToast('success', t.toast.saved);
     onClose();
   };
+
+  const fixedSide = (
+    <div className="space-y-1.5">
+      <span className="block text-sm font-medium">
+        {direction === 'out' ? t.payment.from : t.payment.to}
+      </span>
+      <div className="flex min-h-11 items-center gap-2 rounded-lg border border-border bg-surface-2 px-3">
+        {self && (
+          <>
+            <PersonAvatar personId={self.id} name={self.name} color={self.color} size="sm" />
+            <span className="truncate text-sm font-medium">{self.name}</span>
+          </>
+        )}
+      </div>
+    </div>
+  );
+
+  const pickedSide = (
+    <Select
+      label={direction === 'out' ? t.payment.to : t.payment.from}
+      value={otherId}
+      options={options}
+      onChange={(v) => {
+        setOtherId(v);
+        setError(null);
+      }}
+    />
+  );
 
   return (
     <Sheet
@@ -198,26 +239,24 @@ function PaymentForm({ group, onClose }: { group: Group; onClose: () => void }) 
       }
     >
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-3">
-          <Select
-            label={t.payment.from}
-            value={fromPersonId}
-            options={options}
-            onChange={(v) => {
-              setFrom(v);
-              setError(null);
-            }}
-          />
-          <Select
-            label={t.payment.to}
-            value={toPersonId}
-            options={options}
-            onChange={(v) => {
-              setTo(v);
-              setError(null);
-            }}
-          />
+        <div className="flex items-end gap-2">
+          <div className="min-w-0 flex-1">{direction === 'out' ? fixedSide : pickedSide}</div>
+
+          <IconButton
+            label={t.payment.swap}
+            className="mb-0.5 shrink-0"
+            onClick={() => setDirection((d) => (d === 'out' ? 'in' : 'out'))}
+          >
+            <ArrowLeftRight className="size-4" aria-hidden="true" />
+          </IconButton>
+
+          <div className="min-w-0 flex-1">{direction === 'out' ? pickedSide : fixedSide}</div>
         </div>
+
+        <p className="text-center text-xs text-muted">
+          {direction === 'out' ? t.payment.directionOut : t.payment.directionIn}
+          <span className="mx-1 text-primary">{flowArrow(dir)}</span>
+        </p>
 
         <AmountInput
           label={t.payment.amount}

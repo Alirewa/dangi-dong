@@ -72,7 +72,7 @@ function GroupScreen() {
   return (
     <AppShell
       title={group.name}
-      parent={{ label: t.nav.groups, href: '/' }}
+      parents={[{ label: t.nav.groups, href: '/' }]}
       back
       actions={
         <Button

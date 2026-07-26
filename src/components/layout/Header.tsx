@@ -33,10 +33,19 @@ export function Header({ back = false, actions }: { back?: boolean; actions?: Re
       )}
     >
       <div className="mx-auto flex min-h-16 max-w-5xl items-center gap-2 px-2 py-2 md:min-h-14">
-        {/* Back on the leading edge — right in Persian. */}
+        {/*
+          Leading edge — right in Persian — with back first and the page action
+          immediately after it, so the two controls that belong to this screen
+          read as one group. On mobile the action stays at the opposite end,
+          where a thumb reaches it without covering the back button.
+        */}
         {back && (
           <>
-            <IconButton label={t.common.back} onClick={() => router.back()} className="md:hidden">
+            <IconButton
+              label={t.common.back}
+              onClick={() => router.back()}
+              className="order-1 md:hidden"
+            >
               <BackIcon className="size-5" aria-hidden="true" />
             </IconButton>
             <Button
@@ -44,19 +53,22 @@ export function Header({ back = false, actions }: { back?: boolean; actions?: Re
               size="sm"
               onClick={() => router.back()}
               icon={<BackIcon className="size-4" aria-hidden="true" />}
-              className="hidden md:inline-flex"
+              className="order-1 hidden md:inline-flex"
             >
               {t.common.back}
             </Button>
           </>
         )}
 
-        <span className="flex-1" aria-hidden="true" />
+        {/*
+          `order` rather than rendering `actions` twice: two copies would mean
+          two focusable controls with the same label.
+        */}
+        <span className="order-2 flex-1 md:order-3" aria-hidden="true" />
 
-        {/* Page actions sit at the opposite end from back, not beside it. */}
-        {actions}
+        {actions && <span className="order-3 flex items-center md:order-2">{actions}</span>}
 
-        <nav aria-label={t.nav.groups} className="hidden md:block">
+        <nav aria-label={t.nav.groups} className="order-4 hidden md:block">
           <ul className="flex items-center gap-1">
             {items.map((item) => {
               const active = isActive(item, pathname);

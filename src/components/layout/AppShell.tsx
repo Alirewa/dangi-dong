@@ -12,7 +12,7 @@ export interface Crumb {
 
 export function AppShell({
   title,
-  parent,
+  parents = [],
   back,
   actions,
   children,
@@ -20,8 +20,11 @@ export function AppShell({
   wide = false,
 }: {
   title: string;
-  /** rendered before the title as a breadcrumb link */
-  parent?: Crumb;
+  /**
+   * Ancestors, outermost first. Every level stays a link however deep the page
+   * is, so a user three screens in can jump straight back to any of them.
+   */
+  parents?: Crumb[];
   back?: boolean;
   actions?: ReactNode;
   children: ReactNode;
@@ -52,24 +55,33 @@ export function AppShell({
           without truncating.
         */}
         <div className="px-4 pt-4">
-          {parent && (
-            <nav aria-label="breadcrumb" className="flex items-center gap-1 text-xs text-muted">
-              <Link href={parent.href} className="transition-colors hover:text-primary">
-                {parent.label}
-              </Link>
-              {/*
-                The chevron follows the reading direction: it already points
-                left for Persian, and is flipped for English. Rotating it in RTL
-                instead pointed it back at the parent.
-              */}
-              <ChevronLeft className="size-3.5 shrink-0 ltr:rotate-180" aria-hidden="true" />
+          {parents.length > 0 && (
+            <nav
+              aria-label="breadcrumb"
+              className="flex flex-wrap items-center gap-x-1 gap-y-0.5 text-xs text-muted"
+            >
+              {parents.map((crumb) => (
+                <span key={crumb.href} className="flex items-center gap-1">
+                  <Link href={crumb.href} className="transition-colors hover:text-primary">
+                    {crumb.label}
+                  </Link>
+                  {/*
+                    The chevron follows the reading direction: it already points
+                    left for Persian, and is flipped for English. Rotating it in
+                    RTL instead pointed it back at the parent.
+                  */}
+                  <ChevronLeft className="size-3.5 shrink-0 ltr:rotate-180" aria-hidden="true" />
+                </span>
+              ))}
               {/* The current page closes the trail; not a link, it is here. */}
               <span aria-current="page" className="truncate text-foreground">
                 {title}
               </span>
             </nav>
           )}
-          <h1 className={`text-center text-xl font-bold ${parent ? 'mt-4' : ''}`}>{title}</h1>
+          <h1 className={`text-center text-xl font-bold ${parents.length > 0 ? 'mt-4' : ''}`}>
+            {title}
+          </h1>
         </div>
 
         {children}

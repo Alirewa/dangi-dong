@@ -81,7 +81,14 @@ function SettleScreen() {
 
   if (expenses.length === 0) {
     return (
-      <AppShell title={t.settle.title} parent={{ label: group.name, href: '/group/' }} back>
+      <AppShell
+        title={t.settle.title}
+        parents={[
+          { label: t.nav.groups, href: '/' },
+          { label: group.name, href: '/group/' },
+        ]}
+        back
+      >
         <EmptyState icon={<Calculator className="size-12" />} title={t.settle.nothingToSettle} />
       </AppShell>
     );
@@ -150,7 +157,14 @@ function SettleScreen() {
     });
 
   return (
-    <AppShell title={t.settle.title} parent={{ label: group.name, href: '/group/' }} back>
+    <AppShell
+      title={t.settle.title}
+      parents={[
+        { label: t.nav.groups, href: '/' },
+        { label: group.name, href: '/group/' },
+      ]}
+      back
+    >
       <div className="space-y-4 p-4">
         {/* Dev-only invariant strip. If this ever appears in the wild, the
             settlement is not trustworthy and the numbers must not be shared. */}

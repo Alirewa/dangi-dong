@@ -14,18 +14,20 @@
  */
 export const SHARE_COLORS = {
   primary: '#2dd4bf',
-  primaryDark: '#0b3b38',
+  primaryDark: '#0d2f2c',
   primarySoft: '#134e4a',
-  background: '#0b1220',
-  surface: '#131f33',
-  surfaceAlt: '#0f1a2b',
-  border: '#25344b',
-  text: '#f1f5f9',
-  muted: '#94a3b8',
-  positive: '#4ade80',
-  positiveSoft: '#14532d',
+  /** page background — near-black so the card reads as a single object */
+  background: '#0a0f1a',
+  /** raised panels: the table body and the card block */
+  surface: '#141c2b',
+  surfaceAlt: '#111826',
+  border: '#26314a',
+  text: '#f8fafc',
+  muted: '#8fa0b8',
+  positive: '#34d399',
+  positiveSoft: '#0d3b2e',
   negative: '#f87171',
-  negativeSoft: '#4c1d1d',
-  warningSoft: '#4a2f0a',
+  negativeSoft: '#3f1d1d',
+  warningSoft: '#3d2a0c',
   warningText: '#fbbf24',
 } as const;
