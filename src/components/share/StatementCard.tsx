@@ -12,7 +12,7 @@ import type { Dict } from '@/i18n';
 import type { Expense, Group, Locale, Period, Person } from '@/types/dong';
 import type { SettlementResult } from '@/types/settlement';
 import { GROUP_ICONS } from '@/components/groups/groupIcons';
-import { SHARE_COLORS as C } from './shareColors';
+import { STATEMENT_COLORS as C } from './shareColors';
 
 function StatementIcon({ icon }: { icon: keyof typeof GROUP_ICONS }) {
   const Icon = GROUP_ICONS[icon] ?? GROUP_ICONS.home;

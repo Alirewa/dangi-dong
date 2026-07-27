@@ -12,6 +12,33 @@
  *
  * Changing the brand color means changing it here AND in globals.css.
  */
+/**
+ * The printable statement keeps a LIGHT palette.
+ *
+ * It shares the shape of SHARE_COLORS so StatementCard can swap one for the
+ * other, but a dark A4 page is wrong to print and, more immediately, the PDF
+ * capture is given a white background — html-to-image's `backgroundColor`
+ * option overwrites the root node's own background, so dark text colours on a
+ * forced-white root would render unreadable.
+ */
+export const STATEMENT_COLORS = {
+  primary: '#0f766e',
+  primaryDark: '#115e59',
+  primarySoft: '#ccfbf1',
+  background: '#ffffff',
+  surface: '#f1f5f9',
+  surfaceAlt: '#f8fafc',
+  border: '#cbd5e1',
+  text: '#0f172a',
+  muted: '#475569',
+  positive: '#15803d',
+  positiveSoft: '#dcfce7',
+  negative: '#b91c1c',
+  negativeSoft: '#fee2e2',
+  warningSoft: '#fef3c7',
+  warningText: '#92400e',
+} as const;
+
 export const SHARE_COLORS = {
   primary: '#2dd4bf',
   primaryDark: '#0d2f2c',

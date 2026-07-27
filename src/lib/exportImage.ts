@@ -1,3 +1,4 @@
+import { SHARE_COLORS } from '@/components/share/shareColors';
 import { captureBlob } from './capture';
 
 export const SHARE_CARD_ID = 'dong-share-card';
@@ -8,7 +9,16 @@ export const SHARE_WIDTH = 720;
 export const STATEMENT_WIDTH = 794; // A4 at 96 dpi
 
 export function buildShareBlob(dir: 'rtl' | 'ltr'): Promise<Blob> {
-  return captureBlob(SHARE_CARD_ID, { width: SHARE_WIDTH, pixelRatio: 2, dir });
+  return captureBlob(SHARE_CARD_ID, {
+    width: SHARE_WIDTH,
+    pixelRatio: 2,
+    dir,
+    // Required, not cosmetic: html-to-image applies `backgroundColor` to the
+    // cloned ROOT node, overwriting whatever background that node had. Leaving
+    // it at the default white therefore erased the card's dark background while
+    // its nested panels kept theirs — a dark table floating on a white page.
+    backgroundColor: SHARE_COLORS.background,
+  });
 }
 
 function triggerDownload(blob: Blob, filename: string): void {
