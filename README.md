@@ -65,11 +65,11 @@ Note that the JSON backup file contains any saved card numbers.
 
 ### Sample data
 
-`samples/alireza-farhang.dong.json` is a real two-person monthly ledger converted from a spreadsheet — 16 expenses using multiplier splits and two repayments. Import it from **Settings → Import JSON** to see a populated group. It is set to exact rounding (1 Toman) so its figures match the original sheet to the Rial.
+`samples/alireza-farhang.dong.json` is a real two-person monthly ledger converted from a spreadsheet — 16 expenses using multiplier splits and two repayments. Import it from **Settings → Import JSON** to see a populated group. The spreadsheet was kept in Rial; the amounts here are divided by ten, because the app works in Toman throughout. Rounding is set to exact (1 Toman) so the figures match the original sheet.
 
 ### About the daily reminder
 
-The app has no server, so there is no push channel — Notification Triggers were never shipped by any browser, and Periodic Background Sync is Chrome-only. The 13:30 reminder therefore fires while the app is open, plus a catch-up the first time it is opened after 13:30. Installing it to the home screen is what makes that reliable enough to be useful. The Settings screen states this rather than implying a guarantee.
+The 13:30 reminder requires the app to be installed on the device. There is no push channel in a serverless static PWA — Notification Triggers were never shipped by any browser and Periodic Background Sync is Chrome-only — so the notification fires from the running app plus a catch-up on the next open after 13:30, which is why installation matters.
 
 ## Architecture notes
 

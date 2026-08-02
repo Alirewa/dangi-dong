@@ -64,8 +64,7 @@ export const en: Dict = {
     enabled: 'Reminders are on',
     blocked: 'Notifications are blocked for this site — allow them in your browser settings.',
     unsupported: 'Your browser does not support notifications.',
-    limitation:
-      'The app has no server, so the reminder arrives while it is open, or the first time you open it after 13:30. Installing it to your home screen makes that far more reliable.',
+    limitation: 'Install the app on your device to receive the reminder.',
     test: 'Send a test',
   },
 
