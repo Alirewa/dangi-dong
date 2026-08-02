@@ -6,7 +6,7 @@ import { useT } from '@/hooks/useT';
 import { flowArrow, formatDateShort } from '@/lib/format';
 import { paymentsOf, useDongStore } from '@/store/dongStore';
 import { todayIso } from '@/lib/utils';
-import type { Group, Payment } from '@/types/dong';
+import type { Group, Payment, PaymentKind } from '@/types/dong';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { AmountInput } from '@/components/ui/AmountInput';
 import { Button } from '@/components/ui/Button';
@@ -17,6 +17,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Money } from '@/components/ui/Money';
 import { PersonAvatar } from '@/components/ui/PersonAvatar';
 import { PersonName } from '@/components/ui/PersonName';
+import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Select } from '@/components/ui/Select';
 import { Sheet } from '@/components/ui/Sheet';
 import { TextInput } from '@/components/ui/TextInput';
@@ -52,7 +53,12 @@ export function PaymentsTab({ group, readOnly }: { group: Group; readOnly: boole
   );
 
   const personOf = (id: string) => people.find((p) => p.id === id) ?? null;
-  const total = payments.reduce((a, p) => a + p.amount, 0);
+  // Kept apart on purpose: only transfers move a balance, so adding income into
+  // the same figure would suggest the settlement had shrunk by that much.
+  const transferTotal = payments
+    .filter((p) => p.kind !== 'income')
+    .reduce((a, p) => a + p.amount, 0);
+  const incomeTotal = payments.filter((p) => p.kind === 'income').reduce((a, p) => a + p.amount, 0);
 
   return (
     <div className="space-y-3">
@@ -64,13 +70,28 @@ export function PaymentsTab({ group, readOnly }: { group: Group; readOnly: boole
         />
       ) : (
         <>
-          <div className="flex items-center justify-between rounded-lg bg-surface-2 px-4 py-3">
-            <span className="text-sm text-muted">{t.payment.total}</span>
-            <Money value={total} currency className="text-base font-bold text-positive" />
+          <div className="space-y-2">
+            {transferTotal > 0 && (
+              <div className="flex items-center justify-between rounded-lg bg-surface-2 px-4 py-3">
+                <span className="text-sm text-muted">{t.payment.total}</span>
+                <Money
+                  value={transferTotal}
+                  currency
+                  className="text-base font-bold text-positive"
+                />
+              </div>
+            )}
+            {incomeTotal > 0 && (
+              <div className="flex items-center justify-between rounded-lg bg-surface-2 px-4 py-3">
+                <span className="text-sm text-muted">{t.payment.incomeTotal}</span>
+                <Money value={incomeTotal} currency className="text-base font-bold text-positive" />
+              </div>
+            )}
           </div>
 
           <ul className="space-y-2">
             {payments.map((payment, i) => {
+              const income = payment.kind === 'income';
               const from = personOf(payment.fromPersonId);
               const to = personOf(payment.toPersonId);
               return (
@@ -80,18 +101,38 @@ export function PaymentsTab({ group, readOnly }: { group: Group; readOnly: boole
                   style={{ animationDelay: `${Math.min(i, 8) * 35}ms` }}
                 >
                   <div className="flex items-center gap-2">
-                    {from && (
-                      <PersonAvatar
-                        personId={from.id}
-                        name={from.name}
-                        color={from.color}
-                        size="sm"
-                      />
-                    )}
+                    {income
+                      ? to && (
+                          <PersonAvatar
+                            personId={to.id}
+                            name={to.name}
+                            color={to.color}
+                            size="sm"
+                          />
+                        )
+                      : from && (
+                          <PersonAvatar
+                            personId={from.id}
+                            name={from.name}
+                            color={from.color}
+                            size="sm"
+                          />
+                        )}
                     <span className="min-w-0 flex-1 truncate text-sm font-medium">
-                      {from && <PersonName personId={from.id} name={from.name} />}
-                      <span className="mx-1.5 text-primary">{flowArrow(dir)}</span>
-                      {to && <PersonName personId={to.id} name={to.name} />}
+                      {income ? (
+                        <>
+                          <span className="me-1.5 rounded bg-surface-2 px-1.5 py-0.5 text-xs text-muted">
+                            {t.payment.incomeBadge}
+                          </span>
+                          {to && <PersonName personId={to.id} name={to.name} />}
+                        </>
+                      ) : (
+                        <>
+                          {from && <PersonName personId={from.id} name={from.name} />}
+                          <span className="mx-1.5 text-primary">{flowArrow(dir)}</span>
+                          {to && <PersonName personId={to.id} name={to.name} />}
+                        </>
+                      )}
                     </span>
                     <Money
                       value={payment.amount}
@@ -171,8 +212,12 @@ function PaymentForm({ group, onClose }: { group: Group; onClose: () => void }) 
   const self = members.find((p) => p.id === selfPersonId) ?? members[0] ?? null;
   const others = members.filter((p) => p.id !== self?.id);
 
+  const [kind, setKind] = useState<PaymentKind>('transfer');
   const [direction, setDirection] = useState<'out' | 'in'>('out');
   const [otherId, setOtherId] = useState(() => others[0]?.id ?? '');
+  // Income has no paying member — the money came from outside the group — so it
+  // only needs the member whose pocket it landed in, which is usually the user.
+  const [incomeToId, setIncomeToId] = useState(() => self?.id ?? '');
   const [amount, setAmount] = useState(0);
   // todayIso() is local; toISOString() is UTC and lands on the wrong day for
   // part of every evening in Tehran.
@@ -190,11 +235,34 @@ function PaymentForm({ group, onClose }: { group: Group; onClose: () => void }) 
       setError(t.payment.needAmount);
       return;
     }
+    if (kind === 'income') {
+      if (!incomeToId) return;
+      addPayment({
+        groupId: group.id,
+        kind: 'income',
+        fromPersonId: '',
+        toPersonId: incomeToId,
+        amount,
+        date,
+        note,
+      });
+      pushToast('success', t.toast.saved);
+      onClose();
+      return;
+    }
     if (!fromPersonId || !toPersonId || fromPersonId === toPersonId) {
       setError(t.payment.samePerson);
       return;
     }
-    addPayment({ groupId: group.id, fromPersonId, toPersonId, amount, date, note });
+    addPayment({
+      groupId: group.id,
+      kind: 'transfer',
+      fromPersonId,
+      toPersonId,
+      amount,
+      date,
+      note,
+    });
     pushToast('success', t.toast.saved);
     onClose();
   };
@@ -239,24 +307,51 @@ function PaymentForm({ group, onClose }: { group: Group; onClose: () => void }) 
       }
     >
       <div className="space-y-4">
-        <div className="flex items-end gap-2">
-          <div className="min-w-0 flex-1">{direction === 'out' ? fixedSide : pickedSide}</div>
-
-          <IconButton
-            label={t.payment.swap}
-            className="mb-0.5 shrink-0"
-            onClick={() => setDirection((d) => (d === 'out' ? 'in' : 'out'))}
-          >
-            <ArrowLeftRight className="size-4" aria-hidden="true" />
-          </IconButton>
-
-          <div className="min-w-0 flex-1">{direction === 'out' ? pickedSide : fixedSide}</div>
-        </div>
-
-        <p className="text-center text-xs text-muted">
-          {direction === 'out' ? t.payment.directionOut : t.payment.directionIn}
-          <span className="mx-1 text-primary">{flowArrow(dir)}</span>
+        <SegmentedControl
+          label={t.payment.newTitle}
+          value={kind}
+          options={[
+            { value: 'transfer' as const, label: t.payment.kindTransfer },
+            { value: 'income' as const, label: t.payment.kindIncome },
+          ]}
+          onChange={(v) => {
+            setKind(v);
+            setError(null);
+          }}
+        />
+        <p className="text-xs leading-relaxed text-muted">
+          {kind === 'income' ? t.payment.kindIncomeHint : t.payment.kindTransferHint}
         </p>
+
+        {kind === 'income' ? (
+          <Select
+            label={t.payment.incomeFor}
+            value={incomeToId}
+            options={members.map((p) => ({ value: p.id, label: p.name }))}
+            onChange={setIncomeToId}
+          />
+        ) : (
+          <>
+            <div className="flex items-end gap-2">
+              <div className="min-w-0 flex-1">{direction === 'out' ? fixedSide : pickedSide}</div>
+
+              <IconButton
+                label={t.payment.swap}
+                className="mb-0.5 shrink-0"
+                onClick={() => setDirection((d) => (d === 'out' ? 'in' : 'out'))}
+              >
+                <ArrowLeftRight className="size-4" aria-hidden="true" />
+              </IconButton>
+
+              <div className="min-w-0 flex-1">{direction === 'out' ? pickedSide : fixedSide}</div>
+            </div>
+
+            <p className="text-center text-xs text-muted">
+              {direction === 'out' ? t.payment.directionOut : t.payment.directionIn}
+              <span className="mx-1 text-primary">{flowArrow(dir)}</span>
+            </p>
+          </>
+        )}
 
         <AmountInput
           label={t.payment.amount}

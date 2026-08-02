@@ -114,6 +114,7 @@ export function computeBalances(
   // A repayment can involve someone already removed from the group; leaving
   // them out would silently drop their money from the balance.
   for (const p of payments) {
+    if (p.kind === 'income') continue;
     ids.add(p.fromPersonId);
     ids.add(p.toPersonId);
   }
@@ -172,6 +173,9 @@ export function computeBalances(
   // between two people rather than being shared out, so they never touch the
   // per-expense split.
   for (const p of payments) {
+    // Income comes from outside the group, so it belongs to nobody's share and
+    // must not move a balance — including it would break Σ net === 0.
+    if (p.kind === 'income') continue;
     const amount = Math.round(p.amount);
     if (amount <= 0) continue;
     const from = acc.get(p.fromPersonId);
@@ -334,7 +338,9 @@ export function settle(input: SettleInput): SettlementResult {
     periodId,
     total,
     expenseCount: expenses.length,
-    repaidTotal: sum(payments.map((p) => Math.round(p.amount))),
+    repaidTotal: sum(
+      payments.filter((p) => p.kind !== 'income').map((p) => Math.round(p.amount))
+    ),
     balances,
     transfers,
     treasurerId,

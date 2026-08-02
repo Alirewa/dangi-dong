@@ -16,6 +16,7 @@ import {
   type Locale,
   type PayoutInfo,
   type Payment,
+  type PaymentKind,
   type Period,
   type Person,
   type PersonScope,
@@ -58,6 +59,7 @@ export interface NewExpenseInput {
 
 export interface NewPaymentInput {
   groupId: string;
+  kind?: PaymentKind;
   fromPersonId: string;
   toPersonId: string;
   amount: number;
@@ -85,6 +87,8 @@ interface DongStore extends PersistedShape {
   dismissInstallBanner: () => void;
   addUsageSeconds: (seconds: number) => void;
   setStarPrompt: (state: StarPromptState) => void;
+  setDailyReminder: (on: boolean) => void;
+  markReminderShown: (isoDate: string) => void;
   markBackedUp: () => void;
   markStoragePersistAsked: () => void;
 
@@ -268,6 +272,12 @@ export const useDongStore = create<DongStore>()(
         })),
 
       setStarPrompt: (starPrompt) => set((s) => ({ settings: { ...s.settings, starPrompt } })),
+
+      setDailyReminder: (dailyReminder) =>
+        set((s) => ({ settings: { ...s.settings, dailyReminder } })),
+
+      markReminderShown: (lastReminderOn) =>
+        set((s) => ({ settings: { ...s.settings, lastReminderOn } })),
 
       markBackedUp: () => set((s) => ({ settings: { ...s.settings, lastBackupAt: nowIso() } })),
       markStoragePersistAsked: () =>
@@ -583,7 +593,7 @@ export const useDongStore = create<DongStore>()(
 
       removeExpense: (id) => set((s) => ({ expenses: s.expenses.filter((e) => e.id !== id) })),
 
-      addPayment: ({ groupId, fromPersonId, toPersonId, amount, date, note = '' }) => {
+      addPayment: ({ groupId, kind = 'transfer', fromPersonId, toPersonId, amount, date, note = '' }) => {
         const group = get().groups.find((g) => g.id === groupId);
         // Invariant 3 applies to repayments too: monthly groups file them under
         // a period, event groups never do.
@@ -595,6 +605,7 @@ export const useDongStore = create<DongStore>()(
         const payment: Payment = {
           id: uid(),
           groupId,
+          kind,
           periodId,
           fromPersonId,
           toPersonId,
@@ -724,7 +735,7 @@ export const useDongStore = create<DongStore>()(
     }),
     {
       name: STORAGE_KEY,
-      version: 5,
+      version: 6,
       storage: createJSONStorage(() => localStorage),
       /**
        * v2: `group.emoji` (an emoji character) became `group.icon` (a key), so
@@ -735,6 +746,8 @@ export const useDongStore = create<DongStore>()(
        * v4: added usage tracking and the star-prompt gate; older settings
        *     objects just need the new keys backfilled.
        * v5: added `payments` (repayments), which simply starts empty.
+       * v6: payments gained `kind`; everything that already existed was a
+       *     member-to-member transfer.
        */
       migrate: (persisted, from) => {
         const state = persisted as PersistedShape | undefined;
@@ -764,6 +777,16 @@ export const useDongStore = create<DongStore>()(
             selfPersonId: seeded?.id ?? firstGlobal?.id ?? null,
             onboarded: people.length > 0,
           };
+        }
+
+        if (from < 6) {
+          // Every payment that existed before income was a member-to-member
+          // transfer, which is what kept the balances correct.
+          state.payments = (state.payments ?? []).map((p) => ({
+            ...p,
+            kind: p.kind ?? 'transfer',
+          }));
+          state.settings = { ...defaultSettings, ...state.settings };
         }
 
         if (from < 5) {

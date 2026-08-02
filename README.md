@@ -21,6 +21,8 @@ Open it on a phone or desktop and use your browser's **Install** option to add i
 - **Multiple payers.** Any expense can be paid by several people. The app computes each person's net balance and the fewest money movements needed to settle up.
 - **Main payer card.** The person who fronted the money is shown with their card number and IBAN, both checksum-validated, with one-tap copy.
 - **Exports.** A share image for chat apps, a plain-text summary, a printable A4 PDF, and a JSON backup you can restore on another device.
+- **Money in and money out.** One tab records everything leaving the group — shared or personal — and the other everything arriving: dong someone paid back (which moves the balances) or outside income such as a salary (recorded and totalled, but deliberately kept out of the split).
+- **Daily reminder.** An opt-in browser notification at 13:30 asking you to log the day's spending. Permission is requested from the toggle, never on load.
 - **Bilingual and themed.** Persian and English with full RTL/LTR mirroring, Jalali dates, Persian-Indic digits, and light/dark/system themes.
 
 ## Stack
@@ -60,6 +62,14 @@ Everything is stored in `localStorage` in your browser. Nothing is transmitted a
 The consequences are real and the app says so in its own UI: clearing browser data erases everything, and iOS Safari evicts storage for sites unused for 7 days **unless the PWA is installed to the home screen**. That is why the install prompt is framed as data safety, why the app requests persistent storage, and why it asks for a JSON backup after 30 days. Private browsing loses everything when the tab closes.
 
 Note that the JSON backup file contains any saved card numbers.
+
+### Sample data
+
+`samples/alireza-farhang.dong.json` is a real two-person monthly ledger converted from a spreadsheet — 16 expenses using multiplier splits and two repayments. Import it from **Settings → Import JSON** to see a populated group. It is set to exact rounding (1 Toman) so its figures match the original sheet to the Rial.
+
+### About the daily reminder
+
+The app has no server, so there is no push channel — Notification Triggers were never shipped by any browser, and Periodic Background Sync is Chrome-only. The 13:30 reminder therefore fires while the app is open, plus a catch-up the first time it is opened after 13:30. Installing it to the home screen is what makes that reliable enough to be useful. The Settings screen states this rather than implying a guarantee.
 
 ## Architecture notes
 

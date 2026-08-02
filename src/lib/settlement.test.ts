@@ -80,6 +80,7 @@ function payment(from: string, to: string, amount: number): Payment {
   return {
     id: `pay-${from}-${to}-${amount}`,
     groupId: 'g1',
+    kind: 'transfer',
     periodId: null,
     fromPersonId: from,
     toPersonId: to,

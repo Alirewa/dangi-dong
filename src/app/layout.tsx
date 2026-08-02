@@ -6,6 +6,7 @@ import { ToastHost } from '@/components/ui/ToastHost';
 import { PwaBootstrap } from '@/components/layout/PwaBootstrap';
 import { OnboardingSheet } from '@/components/layout/OnboardingSheet';
 import { StarPrompt } from '@/components/layout/StarPrompt';
+import { DailyReminder } from '@/components/layout/DailyReminder';
 import { STORAGE_KEY } from '@/lib/storageKey';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
@@ -86,6 +87,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <OnboardingSheet />
         <StarPrompt />
+        <DailyReminder />
         <ToastHost />
       </body>
     </html>

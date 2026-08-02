@@ -195,11 +195,22 @@ export interface Expense {
  * expense: a repayment is not shared out between members, it moves a fixed
  * amount from one person to another.
  */
+export type PaymentKind = 'transfer' | 'income';
+
 export interface Payment {
   id: string;
   groupId: string;
+  /**
+   * 'transfer' — money moved between two members; offsets their balances.
+   * 'income'   — money arriving from outside the group (salary, a refund).
+   *              Recorded and totalled, but deliberately NOT part of the
+   *              settlement: it changes nobody's share of a shared cost, and
+   *              feeding it in would break Σ net === 0.
+   */
+  kind: PaymentKind;
   /** monthly → the period it is filed under; event → always null */
   periodId: string | null;
+  /** empty for income, which has no member on the paying side */
   fromPersonId: string;
   toPersonId: string;
   /** integer Toman */
@@ -230,6 +241,10 @@ export interface Settings {
   usageSeconds: number;
   /** gate for the one-time "star the repo" ask */
   starPrompt: StarPromptState;
+  /** daily "log today's spending" reminder */
+  dailyReminder: boolean;
+  /** ISO date of the last reminder shown, so it fires at most once a day */
+  lastReminderOn: string | null;
 }
 
 export type StarPromptState = 'unseen' | 'later' | 'done';
@@ -246,6 +261,8 @@ export const defaultSettings: Settings = {
   onboarded: false,
   usageSeconds: 0,
   starPrompt: 'unseen',
+  dailyReminder: false,
+  lastReminderOn: null,
 };
 
 export const ROUND_OPTIONS: RoundTo[] = [1, 100, 500, 1000];

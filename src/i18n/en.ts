@@ -54,6 +54,21 @@ export const en: Dict = {
     later: 'Maybe later',
   },
 
+  reminder: {
+    title: 'Dangi Dong',
+    body: 'Don’t forget to log today’s spending 😊',
+    settingsTitle: 'Daily reminder',
+    settingsHint: 'A nudge at 13:30 every day to record what you spent.',
+    enable: 'Turn on reminders',
+    disable: 'Turn off reminders',
+    enabled: 'Reminders are on',
+    blocked: 'Notifications are blocked for this site — allow them in your browser settings.',
+    unsupported: 'Your browser does not support notifications.',
+    limitation:
+      'The app has no server, so the reminder arrives while it is open, or the first time you open it after 13:30. Installing it to your home screen makes that far more reliable.',
+    test: 'Send a test',
+  },
+
   nav: {
     groups: 'Groups',
     people: 'People',
@@ -118,14 +133,15 @@ export const en: Dict = {
   },
 
   group: {
-    tabExpenses: 'Expenses',
+    tabExpenses: 'Money out',
     tabMembers: 'Members',
     tabSummary: 'Summary',
-    tabPayments: 'Repayments',
+    tabPayments: 'Money in',
+    tabExpensesFull: 'Money out',
     addExpense: 'Add expense',
     noExpensesTitle: 'No expenses yet',
     noExpensesDesc: 'Add the first shared cost and everyone’s share gets calculated.',
-    settle: 'Calculate shares',
+    settle: 'Shares',
     settleOpen: 'View the full statement',
     total: 'Total',
     period: 'Month',
@@ -143,7 +159,7 @@ export const en: Dict = {
   },
 
   payment: {
-    title: 'Repayments',
+    title: 'Money in',
     add: 'Record a repayment',
     newTitle: 'New repayment',
     from: 'From',
@@ -152,7 +168,8 @@ export const en: Dict = {
     date: 'Date',
     note: 'Note',
     emptyTitle: 'No repayments yet',
-    emptyDesc: 'When someone settles up, record it here and the calculation will account for it.',
+    emptyDesc:
+      'Every incoming amount goes here: dong someone paid you (counted in the calculation) or income such as a salary (recorded only).',
     total: 'Total repaid',
     needAmount: 'Enter an amount',
     samePerson: 'Payer and recipient cannot be the same person',
@@ -161,6 +178,14 @@ export const en: Dict = {
     directionIn: 'You received',
     deleteTitle: 'Delete this repayment?',
     deleteDesc: 'It will be removed from the calculation.',
+    kindTransfer: 'Dong from someone',
+    kindIncome: 'Income',
+    kindTransferHint: 'Someone settled up — it comes off their balance and onto the recipient’s.',
+    kindIncomeHint:
+      'Money from outside the group (salary, a bonus, a refund). It is recorded and totalled, but it takes no part in the split.',
+    incomeFor: 'Who received it?',
+    incomeBadge: 'Income',
+    incomeTotal: 'Total income',
     repaid: 'Repaid',
     received: 'Received',
   },

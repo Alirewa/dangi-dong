@@ -1,0 +1,645 @@
+{
+  "app": "dong-system",
+  "version": 1,
+  "exportedAt": "2026-08-02T09:26:01.423Z",
+  "data": {
+    "people": [
+      {
+        "id": "p-alireza",
+        "name": "علیرضا",
+        "scope": "global",
+        "groupId": null,
+        "color": "#0f766e",
+        "payout": {
+          "holderName": "",
+          "cardNumber": "",
+          "iban": "",
+          "accountNumber": "",
+          "bankName": ""
+        },
+        "note": "",
+        "createdAt": "2026-07-01T00:00:00.000Z"
+      },
+      {
+        "id": "p-farhang",
+        "name": "فرهنگ",
+        "scope": "global",
+        "groupId": null,
+        "color": "#b45309",
+        "payout": {
+          "holderName": "",
+          "cardNumber": "",
+          "iban": "",
+          "accountNumber": "",
+          "bankName": ""
+        },
+        "note": "",
+        "createdAt": "2026-07-01T00:00:00.000Z"
+      }
+    ],
+    "groups": [
+      {
+        "id": "g-alireza-farhang",
+        "mode": "monthly",
+        "name": "خانه — علیرضا و فرهنگ",
+        "icon": "home",
+        "memberIds": [
+          "p-alireza",
+          "p-farhang"
+        ],
+        "treasurerId": null,
+        "activePeriodId": "per-1405-04",
+        "eventDate": null,
+        "note": "درون‌ریزی از فایل اکسل بالانس حساب",
+        "archived": false,
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z"
+      }
+    ],
+    "periods": [
+      {
+        "id": "per-1405-04",
+        "groupId": "g-alireza-farhang",
+        "jYear": 1405,
+        "jMonth": 4,
+        "closed": false,
+        "closedAt": null,
+        "createdAt": "2026-07-01T00:00:00.000Z"
+      }
+    ],
+    "expenses": [
+      {
+        "id": "e-01",
+        "groupId": "g-alireza-farhang",
+        "periodId": "per-1405-04",
+        "title": "خرید از پاندا ۱۰ تیر ۱۴۰۵",
+        "category": "supermarket",
+        "amount": 82114670,
+        "date": "2026-07-01",
+        "payers": [
+          {
+            "personId": "p-alireza",
+            "amount": 82114670
+          }
+        ],
+        "splitKind": "weight",
+        "shares": [
+          {
+            "personId": "p-alireza",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          },
+          {
+            "personId": "p-farhang",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          }
+        ],
+        "note": "",
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z"
+      },
+      {
+        "id": "e-02",
+        "groupId": "g-alireza-farhang",
+        "periodId": "per-1405-04",
+        "title": "خرید لوازم برق لامپ و هواکش",
+        "category": "utilities",
+        "amount": 10000000,
+        "date": "2026-07-02",
+        "payers": [
+          {
+            "personId": "p-alireza",
+            "amount": 10000000
+          }
+        ],
+        "splitKind": "weight",
+        "shares": [
+          {
+            "personId": "p-alireza",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          },
+          {
+            "personId": "p-farhang",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          }
+        ],
+        "note": "",
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z"
+      },
+      {
+        "id": "e-03",
+        "groupId": "g-alireza-farhang",
+        "periodId": "per-1405-04",
+        "title": "خرید نان همبرگری، سیب‌زمینی، سیب، نوشابه، کره و دلستر",
+        "category": "food",
+        "amount": 8650000,
+        "date": "2026-07-03",
+        "payers": [
+          {
+            "personId": "p-alireza",
+            "amount": 8650000
+          }
+        ],
+        "splitKind": "weight",
+        "shares": [
+          {
+            "personId": "p-alireza",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          },
+          {
+            "personId": "p-farhang",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          }
+        ],
+        "note": "",
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z"
+      },
+      {
+        "id": "e-04",
+        "groupId": "g-alireza-farhang",
+        "periodId": "per-1405-04",
+        "title": "خرید آب گالن",
+        "category": "food",
+        "amount": 1700000,
+        "date": "2026-07-04",
+        "payers": [
+          {
+            "personId": "p-alireza",
+            "amount": 1700000
+          }
+        ],
+        "splitKind": "weight",
+        "shares": [
+          {
+            "personId": "p-alireza",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          },
+          {
+            "personId": "p-farhang",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          }
+        ],
+        "note": "",
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z"
+      },
+      {
+        "id": "e-05",
+        "groupId": "g-alireza-farhang",
+        "periodId": "per-1405-04",
+        "title": "خرید نان لواش",
+        "category": "food",
+        "amount": 280000,
+        "date": "2026-07-05",
+        "payers": [
+          {
+            "personId": "p-alireza",
+            "amount": 280000
+          }
+        ],
+        "splitKind": "weight",
+        "shares": [
+          {
+            "personId": "p-alireza",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          },
+          {
+            "personId": "p-farhang",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          }
+        ],
+        "note": "",
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z"
+      },
+      {
+        "id": "e-06",
+        "groupId": "g-alireza-farhang",
+        "periodId": "per-1405-04",
+        "title": "خرید فرهنگ برای خونه — کنسرو و روغن",
+        "category": "supermarket",
+        "amount": 23000000,
+        "date": "2026-07-06",
+        "payers": [
+          {
+            "personId": "p-farhang",
+            "amount": 23000000
+          }
+        ],
+        "splitKind": "weight",
+        "shares": [
+          {
+            "personId": "p-alireza",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          },
+          {
+            "personId": "p-farhang",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          }
+        ],
+        "note": "",
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z"
+      },
+      {
+        "id": "e-07",
+        "groupId": "g-alireza-farhang",
+        "periodId": "per-1405-04",
+        "title": "قرض مهندس از من بابت اجاره خانه",
+        "category": "rent",
+        "amount": 52500000,
+        "date": "2026-07-07",
+        "payers": [
+          {
+            "personId": "p-alireza",
+            "amount": 52500000
+          }
+        ],
+        "splitKind": "weight",
+        "shares": [
+          {
+            "personId": "p-alireza",
+            "included": false,
+            "weight": 1,
+            "exactAmount": null
+          },
+          {
+            "personId": "p-farhang",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          }
+        ],
+        "note": "",
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z"
+      },
+      {
+        "id": "e-08",
+        "groupId": "g-alireza-farhang",
+        "periodId": "per-1405-04",
+        "title": "خرید نان و ۴ آب گالن (۳۰+۳۴۰+۳۴۰)",
+        "category": "food",
+        "amount": 7100000,
+        "date": "2026-07-08",
+        "payers": [
+          {
+            "personId": "p-farhang",
+            "amount": 7100000
+          }
+        ],
+        "splitKind": "weight",
+        "shares": [
+          {
+            "personId": "p-alireza",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          },
+          {
+            "personId": "p-farhang",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          }
+        ],
+        "note": "",
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z"
+      },
+      {
+        "id": "e-09",
+        "groupId": "g-alireza-farhang",
+        "periodId": "per-1405-04",
+        "title": "قرض مهندس از من بابت اجاره خانه — برداشت از تنخواه",
+        "category": "rent",
+        "amount": 60000000,
+        "date": "2026-07-09",
+        "payers": [
+          {
+            "personId": "p-alireza",
+            "amount": 60000000
+          }
+        ],
+        "splitKind": "weight",
+        "shares": [
+          {
+            "personId": "p-alireza",
+            "included": false,
+            "weight": 1,
+            "exactAmount": null
+          },
+          {
+            "personId": "p-farhang",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          }
+        ],
+        "note": "",
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z"
+      },
+      {
+        "id": "e-10",
+        "groupId": "g-alireza-farhang",
+        "periodId": "per-1405-04",
+        "title": "خرید میوه — آنلاین (گوجه، سیب‌زمینی، کاهو، طالبی، فلفل دلمه، زردآلو)",
+        "category": "groceries",
+        "amount": 9610000,
+        "date": "2026-07-10",
+        "payers": [
+          {
+            "personId": "p-alireza",
+            "amount": 9610000
+          }
+        ],
+        "splitKind": "weight",
+        "shares": [
+          {
+            "personId": "p-alireza",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          },
+          {
+            "personId": "p-farhang",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          }
+        ],
+        "note": "",
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z"
+      },
+      {
+        "id": "e-11",
+        "groupId": "g-alireza-farhang",
+        "periodId": "per-1405-04",
+        "title": "خرید میوه — حضوری (خلالی، شلیل قرمز، سیب قلبی، خیار)",
+        "category": "groceries",
+        "amount": 7770000,
+        "date": "2026-07-11",
+        "payers": [
+          {
+            "personId": "p-alireza",
+            "amount": 7770000
+          }
+        ],
+        "splitKind": "weight",
+        "shares": [
+          {
+            "personId": "p-alireza",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          },
+          {
+            "personId": "p-farhang",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          }
+        ],
+        "note": "",
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z"
+      },
+      {
+        "id": "e-12",
+        "groupId": "g-alireza-farhang",
+        "periodId": "per-1405-04",
+        "title": "خرید نوشابه ۲ عدد",
+        "category": "food",
+        "amount": 2200000,
+        "date": "2026-07-12",
+        "payers": [
+          {
+            "personId": "p-farhang",
+            "amount": 2200000
+          }
+        ],
+        "splitKind": "weight",
+        "shares": [
+          {
+            "personId": "p-alireza",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          },
+          {
+            "personId": "p-farhang",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          }
+        ],
+        "note": "",
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z"
+      },
+      {
+        "id": "e-13",
+        "groupId": "g-alireza-farhang",
+        "periodId": "per-1405-04",
+        "title": "خرید میوه توسط فرهنگ",
+        "category": "groceries",
+        "amount": 12870000,
+        "date": "2026-07-13",
+        "payers": [
+          {
+            "personId": "p-farhang",
+            "amount": 12870000
+          }
+        ],
+        "splitKind": "weight",
+        "shares": [
+          {
+            "personId": "p-alireza",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          },
+          {
+            "personId": "p-farhang",
+            "included": true,
+            "weight": 2,
+            "exactAmount": null
+          }
+        ],
+        "note": "",
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z"
+      },
+      {
+        "id": "e-14",
+        "groupId": "g-alireza-farhang",
+        "periodId": "per-1405-04",
+        "title": "خرید سوپرمارکتی و نون",
+        "category": "supermarket",
+        "amount": 9000000,
+        "date": "2026-07-14",
+        "payers": [
+          {
+            "personId": "p-farhang",
+            "amount": 9000000
+          }
+        ],
+        "splitKind": "weight",
+        "shares": [
+          {
+            "personId": "p-alireza",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          },
+          {
+            "personId": "p-farhang",
+            "included": true,
+            "weight": 2,
+            "exactAmount": null
+          }
+        ],
+        "note": "",
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z"
+      },
+      {
+        "id": "e-15",
+        "groupId": "g-alireza-farhang",
+        "periodId": "per-1405-04",
+        "title": "نوشابه",
+        "category": "food",
+        "amount": 1100000,
+        "date": "2026-07-15",
+        "payers": [
+          {
+            "personId": "p-farhang",
+            "amount": 1100000
+          }
+        ],
+        "splitKind": "weight",
+        "shares": [
+          {
+            "personId": "p-alireza",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          },
+          {
+            "personId": "p-farhang",
+            "included": true,
+            "weight": 2,
+            "exactAmount": null
+          }
+        ],
+        "note": "",
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z"
+      },
+      {
+        "id": "e-16",
+        "groupId": "g-alireza-farhang",
+        "periodId": "per-1405-04",
+        "title": "خرید میوه و سبزی",
+        "category": "groceries",
+        "amount": 21706980,
+        "date": "2026-07-16",
+        "payers": [
+          {
+            "personId": "p-farhang",
+            "amount": 21706980
+          }
+        ],
+        "splitKind": "weight",
+        "shares": [
+          {
+            "personId": "p-alireza",
+            "included": true,
+            "weight": 1,
+            "exactAmount": null
+          },
+          {
+            "personId": "p-farhang",
+            "included": true,
+            "weight": 2,
+            "exactAmount": null
+          }
+        ],
+        "note": "",
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z"
+      }
+    ],
+    "payments": [
+      {
+        "id": "pay-1",
+        "groupId": "g-alireza-farhang",
+        "kind": "transfer",
+        "periodId": "per-1405-04",
+        "fromPersonId": "p-farhang",
+        "toPersonId": "p-alireza",
+        "amount": 41000000,
+        "date": "2026-07-02",
+        "note": "واریز فرهنگ به من",
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z"
+      },
+      {
+        "id": "pay-2",
+        "groupId": "g-alireza-farhang",
+        "kind": "transfer",
+        "periodId": "per-1405-04",
+        "fromPersonId": "p-farhang",
+        "toPersonId": "p-alireza",
+        "amount": 60000000,
+        "date": "2026-07-12",
+        "note": "واریز مبلغ تنخواه از مهندس فرهنگ به من",
+        "createdAt": "2026-07-01T00:00:00.000Z",
+        "updatedAt": "2026-07-01T00:00:00.000Z"
+      }
+    ],
+    "settings": {
+      "locale": "fa",
+      "theme": "system",
+      "roundTo": 1,
+      "transferStrategy": "treasurer-first",
+      "installBannerDismissedAt": null,
+      "lastBackupAt": null,
+      "storagePersistAsked": false,
+      "selfPersonId": "p-alireza",
+      "onboarded": true,
+      "usageSeconds": 0,
+      "starPrompt": "unseen",
+      "dailyReminder": false,
+      "lastReminderOn": null
+    },
+    "activeGroupId": "g-alireza-farhang"
+  }
+}

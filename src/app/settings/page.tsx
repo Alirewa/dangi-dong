@@ -8,6 +8,7 @@ import { InstallPrompt } from '@/components/layout/InstallPrompt';
 import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
+import { ReminderSetting } from '@/components/settings/ReminderSetting';
 import { Select } from '@/components/ui/Select';
 import { Sheet } from '@/components/ui/Sheet';
 import { useT } from '@/hooks/useT';
@@ -139,6 +140,10 @@ function SettingsScreen() {
           onChange={store.setTheme}
           label={t.settings.theme}
         />
+      </Section>
+
+      <Section title={t.reminder.settingsTitle}>
+        <ReminderSetting />
       </Section>
 
       <Section title={t.settings.rounding}>
